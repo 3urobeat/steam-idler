@@ -1,0 +1,17 @@
+{
+    "name": "steam-idler",
+    "version": "1.0",
+    "description": "Simple cross-platform Steam game idler.",
+    "main": "idler.js",
+    "dependencies": {
+        "steam-user": "^4.19.3"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "start": "node idler.js"
+    },
+    "author": "3urobeat",
+    "license": "GPL-3.0",
+    "homepage": "https://github.com/HerrEurobeat",
+    "repository": "https://github.com/HerrEurobeat/steam-idler"
+}
