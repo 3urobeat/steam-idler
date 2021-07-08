@@ -84,7 +84,7 @@ function loginAcc(logOnOptions, index) {
 
 /* ------------ Start all accounts: ------------ */
 importLogininfo((logininfo) => {
-    console.log("\nSimple steam-idler by 3urobeat v1.0\n")
+    console.log("\nSimple steam-idler by 3urobeat v1.1\n")
 
     Object.values(logininfo).forEach((e, i) => {
         setTimeout(() => {
