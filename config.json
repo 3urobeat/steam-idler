@@ -1,5 +1,5 @@
 {
-    "username": "",
-    "password": "",
-    "playingGames": ["Custom game", 440, 730]
+    "playingGames": ["Custom game", 440, 730],
+    "onlinestatus": null,
+    "afkMessage": "Hi, I'm idling."
 }

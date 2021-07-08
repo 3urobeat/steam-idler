@@ -4,9 +4,9 @@
     "description": "Simple cross-platform Steam game idler.",
     "main": "idler.js",
     "dependencies": {
+        "steam-totp": "^2.1.1",
         "steam-user": "^4.19.3"
     },
-    "devDependencies": {},
     "scripts": {
         "start": "node idler.js"
     },

@@ -1,0 +1,1 @@
+//Comment: Please provide all accounts to idle in this format, one per line: username:password:shared_secret  (shared_secret is optional)
