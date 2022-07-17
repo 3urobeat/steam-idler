@@ -22,6 +22,9 @@ If set to `null` (default) the bot will not change your online status.
   
 To set a message that will be send on a recieved message while idling, set a message as `afkMessage`.  
 Leave the brackets empty (like this: `""`) to not send any message back.  
+
+The loginDelay and relogDelay values control the time waited between logging in multiple accounts and the time waited before a relog is attempted after an account lost connection.  
+I recommend not touching them as they have good defaults to avoid cooldowns, however if you know what you are doing - they are there.  
   
 
 ### Start
