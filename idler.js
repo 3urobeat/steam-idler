@@ -72,10 +72,6 @@ function loginAcc(logOnOptions, index) {
 
         if (config.onlinestatus) bot.setPersona(config.onlinestatus) //set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
         bot.gamesPlayed(config.playingGames) //start playing games
-
-        setTimeout(() => {
-            bot.logOff()
-        }, 5000);
     });
 
     bot.on('friendMessage', (steamID, message) => {
@@ -96,7 +92,7 @@ function loginAcc(logOnOptions, index) {
         console.log(`[${logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
         relogQueue.push(index);
 
-        //Check if it's out turn to relog every 1 sec after waiting relogDelay ms
+        //Check if it's our turn to relog every 1 sec after waiting relogDelay ms
         setTimeout(() => {
             var relogInterval = setInterval(() => {
                 if (relogQueue.indexOf(index) != 0) return; //not our turn? stop and retry in the next iteration
@@ -104,7 +100,7 @@ function loginAcc(logOnOptions, index) {
                 clearInterval(relogInterval) //prevent any retries
                 bot.logOff()
 
-                console.log(`[${logOnOptions.accountName}] It is now my turn. Relogging in a second...`)
+                console.log(`[${logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`)
 
                 //Generate steam guard code again if user provided a shared_secret
                 if (logOnOptions["sharedSecretForRelog"]) {
@@ -116,7 +112,7 @@ function loginAcc(logOnOptions, index) {
                     console.log(`[${logOnOptions.accountName}] Logging in...`)
                     
                     bot.logOn(logOnOptions)
-                }, 1000);
+                }, config.loginDelay);
             }, 1000);
         }, config.relogDelay);
     })
@@ -152,7 +148,7 @@ importLogininfo((logininfo) => {
                 }
             }, 250)
 
-        }, 1000);
+        }, config.loginDelay);
 
     })
 })
