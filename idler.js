@@ -130,7 +130,7 @@ function loginAcc(logOnOptions, index) {
 
 /* ------------ Start all accounts: ------------ */
 logger("", "", true, true)
-logger("info", "Simple steam-idler by 3urobeat v1.1\n")
+logger("info", "Simple steam-idler by 3urobeat v1.2\n")
 
 importLogininfo((logininfo) => {
     logger("", "", true)
