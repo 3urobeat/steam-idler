@@ -4,6 +4,7 @@
     "description": "Simple cross-platform Steam game idler.",
     "main": "idler.js",
     "dependencies": {
+        "output-logger": "^2.2.2",
         "steam-totp": "^2.1.2",
         "steam-user": "^4.24.5"
     },

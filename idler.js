@@ -2,11 +2,20 @@ const fs = require("fs");
 const SteamUser = require('steam-user');
 const SteamTotp = require("steam-totp");
 const SteamID   = require('steamid');
+const logger    = require("output-logger");
 
 const config = require("./config.json");
 
 var nextacc    = 0
 var relogQueue = []; //queue tracking disconnected accounts to relog them after eachother with a delay
+
+//Configure my logging lib
+logger.options({
+    msgstructure: `[${logger.Const.ANIMATION}] [${logger.Const.DATE} | ${logger.Const.TYPE}] ${logger.Const.MESSAGE}`,
+    paramstructure: [logger.Const.TYPE, logger.Const.MESSAGE, "nodate", "remove", logger.Const.ANIMATION],
+    outputfile: "./output.txt",
+    exitmessage: "Goodbye!"
+})
 
 
 /* ------------ Functions: ------------ */
@@ -15,8 +24,7 @@ var relogQueue = []; //queue tracking disconnected accounts to relog them after 
  * @returns logininfo object
  */
 function importLogininfo(callback) {
-    console.log("")
-    console.log("Loading logininfo from accounts.txt...")
+    logger("info", "Loading logininfo from accounts.txt...")
 
     var logininfo = {}
 
@@ -27,7 +35,7 @@ function importLogininfo(callback) {
         if (data[0].startsWith("//Comment")) data = data.slice(1); //Remove comment from array
 
         if (data == "") {
-            console.log("No accounts found in accounts.txt! Aborting...")
+            logger("error", "No accounts found in accounts.txt! Aborting...")
             process.exit(1)
         }
 
@@ -40,7 +48,7 @@ function importLogininfo(callback) {
             if (i == data.length - 1) callback(logininfo) //callback finished obj on last iteration
         })
     } else {
-        console.log("No accounts found in accounts.txt! Aborting...")
+        logger("error", "No accounts found in accounts.txt! Aborting...")
         process.exit(1)
     }
 }
@@ -53,19 +61,18 @@ function importLogininfo(callback) {
 function loginAcc(logOnOptions, index) {
     let bot = new SteamUser({ autoRelogin: false });
 
-    console.log(`Logging in ${logOnOptions.accountName}...`)
+    logger("info", `Logging in ${logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`)
+    setTimeout(() => bot.logOn(logOnOptions), config.loginDelay); //log in with logOnOptions
 
-    bot.logOn(logOnOptions) //log in with logOnOptions
-
+    //Attach event listeners
     bot.on('loggedOn', () => { //this account is now logged on
-        console.log(`[${logOnOptions.accountName}] Logged in and idling games.`)
-        console.log("")
+        logger("info", `[${logOnOptions.accountName}] Logged in and idling games.\n`)
 
         nextacc = index + 1 //the next index can start
 
         //If this is a relog then remove this account from the queue and let the next account be able to relog
         if (relogQueue.includes(index)) {
-            console.log(`[${logOnOptions.accountName}] Relog successful.`)
+            logger("info", `[${logOnOptions.accountName}] Relog successful.`)
 
             relogQueue.splice(relogQueue.indexOf(index), 1) //remove this loginindex from the queue
         }
@@ -77,10 +84,10 @@ function loginAcc(logOnOptions, index) {
     bot.on('friendMessage', (steamID, message) => {
         var steamID64 = new SteamID(String(steamID)).getSteamID64()
 
-        console.log(`[${logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`)
+        logger("info", `[${logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`)
 
         if (config.afkMessage.length > 0) {
-            console.log("Responding with: " + config.afkMessage)
+            logger("info", "Responding with: " + config.afkMessage)
 
             bot.chat.sendFriendMessage(steamID, config.afkMessage)
         }  
@@ -89,7 +96,7 @@ function loginAcc(logOnOptions, index) {
     bot.on("disconnected", (eresult, msg) => { //handle relogging
         if (relogQueue.includes(index)) return; //don't handle this event if account is already waiting for relog
 
-        console.log(`[${logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
+        logger("info", `[${logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
         relogQueue.push(index);
 
         //Check if it's our turn to relog every 1 sec after waiting relogDelay ms
@@ -100,7 +107,7 @@ function loginAcc(logOnOptions, index) {
                 clearInterval(relogInterval) //prevent any retries
                 bot.logOff()
 
-                console.log(`[${logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`)
+                logger("info", `[${logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`)
 
                 //Generate steam guard code again if user provided a shared_secret
                 if (logOnOptions["sharedSecretForRelog"]) {
@@ -109,7 +116,7 @@ function loginAcc(logOnOptions, index) {
 
                 //Attach relogdelay timeout
                 setTimeout(() => {
-                    console.log(`[${logOnOptions.accountName}] Logging in...`)
+                    logger("info", `[${logOnOptions.accountName}] Logging in...`)
                     
                     bot.logOn(logOnOptions)
                 }, config.loginDelay);
@@ -122,8 +129,11 @@ function loginAcc(logOnOptions, index) {
 
 
 /* ------------ Start all accounts: ------------ */
+logger("", "", true, true)
+logger("info", "Simple steam-idler by 3urobeat v1.1\n")
+
 importLogininfo((logininfo) => {
-    console.log("\nSimple steam-idler by 3urobeat v1.1\n")
+    logger("", "", true)
 
     Object.values(logininfo).forEach((e, i) => {
         setTimeout(() => {
@@ -147,8 +157,6 @@ importLogininfo((logininfo) => {
                     loginAcc(logOnOptions, i)
                 }
             }, 250)
-
-        }, config.loginDelay);
-
+        }, 1000);
     })
 })
