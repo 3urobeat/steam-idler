@@ -1,5 +1,6 @@
 {
     "playingGames": ["Custom game", 440, 730],
     "onlinestatus": null,
-    "afkMessage": "Hi, I'm idling."
+    "afkMessage": "Hi, I'm idling.",
+    "relogDelay": 15000
 }
