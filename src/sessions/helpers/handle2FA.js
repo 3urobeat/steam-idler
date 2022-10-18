@@ -4,7 +4,7 @@
  * Created Date: 09.10.2022 12:59:31
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 19:12:45
+ * Last Modified: 18.10.2022 19:55:47
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -68,13 +68,11 @@ sessionHandler.prototype._get2FAUserInput = function() {
     // Ask user for code
     logger.readInput(question, timeout, (text) => {
         if (!text || text == "") { // No response or manual skip
-
             if (text == null) logger("info", "Skipping account because you didn't respond in 1.5 minutes...", true); // No need to check for main acc as timeout is disabled for it
 
             logger("info", `[${this.thisbot}] steamGuard input empty, skipping account...`, false, true);
 
             this._resolvePromise(null);
-            return;
         } else { // User entered code
             logger("info", `[${this.thisbot}] Accepting Steam Guard Code...`, false, true);
             this._acceptSteamGuardCode(text.toString().trim()); // Pass code to accept function

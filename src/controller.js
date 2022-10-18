@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 19:05:38
+ * Last Modified: 18.10.2022 20:02:40
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -20,10 +20,9 @@ const fs        = require("fs");
 const logger    = require("output-logger");
 const SteamTotp = require("steam-totp");
 
-const nextacc    = 0;
-const relogQueue = []; // Queue tracking disconnected accounts to relog them after eachother with a delay
-
-module.exports = { nextacc, relogQueue }; // Export both values to make them accessable from bot.js
+// Export both values to make them accessable from bot.js
+module.exports.nextacc    = 0;
+module.exports.relogQueue = []; // Queue tracking disconnected accounts to relog them after eachother with a delay
 
 // Configure my logging lib
 logger.options({
@@ -88,7 +87,7 @@ module.exports.start = async () => {
         setTimeout(() => {
 
             var readycheckinterval = setInterval(() => {
-                if (nextacc == i) { // Check if it is our turn
+                if (this.nextacc == i) { // Check if it is our turn
                     clearInterval(readycheckinterval);
 
                     // Construct logOnOptions obj which is passed to all bot objects
