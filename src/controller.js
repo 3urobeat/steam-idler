@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 11:28:46
+ * Last Modified: 18.10.2022 19:05:38
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -73,6 +73,7 @@ function importLogininfo() {
 
 /* ------------ Login all accounts ------------ */
 module.exports.start = async () => {
+    global.logger = logger; // Make logger accessible from everywhere in this project
 
     logger("", "", true, true);
     logger("info", "steam-idler by 3urobeat v1.2\n");
@@ -103,9 +104,10 @@ module.exports.start = async () => {
                     }
 
                     // Create new bot object
-                    let bot = require("./bot.js");
+                    let botfile = require("./bot.js");
+                    let bot = new botfile(logOnOptions, i, logger);
 
-                    new bot(logOnOptions, i, logger);
+                    bot.login();
                 }
             }, 250);
         }, 1000);

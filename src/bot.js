@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 12:51:40
+ * Last Modified: 18.10.2022 19:20:28
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -19,27 +19,44 @@ const SteamID   = require("steamid");
 const SteamTotp = require("steam-totp");
 const SteamUser = require("steam-user");
 
-const controller = require("./controller.js");
-const config     = require("../config.json");
+const sessionHandler = require("./sessions/sessionHandler.js");
+const controller     = require("./controller.js");
+const config         = require("../config.json");
 
 
 /**
  * Constructor Creates a new bot object and logs in the account
  * @param {Object} logOnOptions The logOnOptions obj for this account
  * @param {Number} loginindex The loginindex for this account
- * @param {Function} logger The logger function
  */
-const bot = function(logOnOptions, loginindex, logger) {
+const bot = function(logOnOptions, loginindex) {
 
     this.logOnOptions = logOnOptions;
     this.loginindex   = loginindex;
-    this.logger       = logger;
 
     // Create new steam-user bot object
     this.client = new SteamUser({ autoRelogin: false });
 
-    logger("info", `Logging in ${logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`);
-    setTimeout(() => this.client.logOn(logOnOptions), config.loginDelay); // Log in with logOnOptions
+    this.session;
+
+};
+
+module.exports = bot;
+
+
+// Handles logging in this account
+bot.prototype.login = async function() {
+
+    /* ------------ Login ------------ */
+    logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`);
+
+    // Get new session for this account and log in
+    this.session     = new sessionHandler(this.client, this.logOnOptions.accountName, this.loginindex, this.logOnOptions);
+
+    let refreshToken = await this.session.getToken();
+    if (!refreshToken) return; // Stop execution if getToken aborted login attempt
+
+    setTimeout(() => this.client.logOn({ "refreshToken": refreshToken }), config.loginDelay); // Log in with logOnOptions
 
 
     /* ------------ Attach relevant steam-user events ------------ */
@@ -48,12 +65,12 @@ const bot = function(logOnOptions, loginindex, logger) {
         controller.nextacc++; // The next account can start
 
         // If this is a relog then remove this account from the queue and let the next account be able to relog
-        if (controller.relogQueue.includes(loginindex)) {
-            logger("info", `[${logOnOptions.accountName}] Relog successful.`);
+        if (controller.relogQueue.includes(this.loginindex)) {
+            logger("info", `[${this.logOnOptions.accountName}] Relog successful.`);
 
-            controller.relogQueue.splice(controller.relogQueue.indexOf(loginindex), 1); // Remove this loginindex from the queue
+            controller.relogQueue.splice(controller.relogQueue.indexOf(this.loginindex), 1); // Remove this loginindex from the queue
         } else {
-            logger("info", `[${logOnOptions.accountName}] Logged in and idling games.\n`);
+            logger("info", `[${this.logOnOptions.accountName}] Logged in and idling games.\n`);
         }
 
         // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
@@ -65,7 +82,7 @@ const bot = function(logOnOptions, loginindex, logger) {
     this.client.on("friendMessage", (steamID, message) => {
         var steamID64 = new SteamID(String(steamID)).getSteamID64();
 
-        logger("info", `[${logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`);
+        logger("info", `[${this.logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`);
 
         // Respond with afk message if enabled in config
         if (config.afkMessage.length > 0) {
@@ -77,9 +94,9 @@ const bot = function(logOnOptions, loginindex, logger) {
 
 
     this.client.on("disconnected", (eresult, msg) => { // Handle relogging
-        if (controller.relogQueue.includes(loginindex)) return; // Don't handle this event if account is already waiting for relog
+        if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this event if account is already waiting for relog
 
-        logger("info", `[${logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
+        logger("info", `[${this.logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
         this.handleRelog();
     });
 
@@ -92,18 +109,17 @@ const bot = function(logOnOptions, loginindex, logger) {
         }
 
         // Check if this is a login error or a connection loss
-        if (controller.nextacc == loginindex) { // Login error
-            logger("error", `[${logOnOptions.accountName}] Error logging in! ${err}`);
+        if (controller.nextacc == this.loginindex) { // Login error
+            logger("error", `[${this.logOnOptions.accountName}] Error logging in! ${err}. Continuing with next account...`);
+            controller.nextacc++; // The next account can start
         } else { // Connection loss
-            if (controller.relogQueue.includes(loginindex)) return; // Don't handle this event if account is already waiting for relog
+            if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this event if account is already waiting for relog
 
-            logger("info", `[${logOnOptions.accountName}] Lost connection to Steam. ${err}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
+            logger("info", `[${this.logOnOptions.accountName}] Lost connection to Steam. ${err}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
             this.handleRelog();
         }
     });
 };
-
-module.exports = bot;
 
 
 // Handles relogging this bot account
@@ -120,7 +136,7 @@ bot.prototype.handleRelog = function() {
             clearInterval(relogInterval); // Prevent any retries
             this.client.logOff();
 
-            this.logger("info", `[${this.logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`);
+            logger("info", `[${this.logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`);
 
             // Generate steam guard code again if user provided a shared_secret
             if (this.logOnOptions["sharedSecretForRelog"]) {
@@ -128,8 +144,11 @@ bot.prototype.handleRelog = function() {
             }
 
             // Attach relogdelay timeout
-            setTimeout(() => {
-                this.logger("info", `[${this.logOnOptions.accountName}] Logging in...`);
+            setTimeout(async () => {
+                logger("info", `[${this.logOnOptions.accountName}] Logging in...`);
+
+                let refreshToken = await this.session.getToken();
+                if (!refreshToken) return; // Stop execution if getToken aborted login attempt
 
                 this.client.logOn(this.logOnOptions);
             }, config.loginDelay);
