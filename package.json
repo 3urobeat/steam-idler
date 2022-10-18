@@ -1,12 +1,14 @@
 {
     "name": "steam-idler",
-    "version": "1.0",
+    "version": "1.3",
     "description": "Simple cross-platform Steam game idler.",
     "main": "idler.js",
     "dependencies": {
-        "output-logger": "^2.2.2",
+        "@seald-io/nedb": "^3.1.0",
+        "output-logger": "^2.2.3",
+        "steam-session": "^0.0.3-alpha",
         "steam-totp": "^2.1.2",
-        "steam-user": "^4.24.5"
+        "steam-user": "^4.25.0"
     },
     "scripts": {
         "start": "node idler.js"
