@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 12:15:50
+ * Last Modified: 18.10.2022 12:51:40
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -41,10 +41,10 @@ const bot = function(logOnOptions, loginindex, logger) {
     logger("info", `Logging in ${logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`);
     setTimeout(() => this.client.logOn(logOnOptions), config.loginDelay); // Log in with logOnOptions
 
-    // Attach relevant steam-user events after bot obj is created
-    this.client.on("loggedOn", () => { // This account is now logged on
-        logger("info", `[${logOnOptions.accountName}] Logged in and idling games.\n`);
 
+    /* ------------ Attach relevant steam-user events ------------ */
+
+    this.client.on("loggedOn", () => { // This account is now logged on
         controller.nextacc++; // The next account can start
 
         // If this is a relog then remove this account from the queue and let the next account be able to relog
@@ -52,6 +52,8 @@ const bot = function(logOnOptions, loginindex, logger) {
             logger("info", `[${logOnOptions.accountName}] Relog successful.`);
 
             controller.relogQueue.splice(controller.relogQueue.indexOf(loginindex), 1); // Remove this loginindex from the queue
+        } else {
+            logger("info", `[${logOnOptions.accountName}] Logged in and idling games.\n`);
         }
 
         // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
@@ -78,10 +80,27 @@ const bot = function(logOnOptions, loginindex, logger) {
         if (controller.relogQueue.includes(loginindex)) return; // Don't handle this event if account is already waiting for relog
 
         logger("info", `[${logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
-
         this.handleRelog();
     });
 
+
+    this.client.on("error", (err) => {
+        // Custom behavior for LogonSessionReplaced error
+        if (err.eresult == SteamUser.EResult.LogonSessionReplaced) {
+            logger("warn", `${logger.colors.fgred}[${this.logOnOptions.accountName}] Lost connection to Steam! Reason: LogonSessionReplaced. I won't try to relog this account because someone else is using it now.`);
+            return;
+        }
+
+        // Check if this is a login error or a connection loss
+        if (controller.nextacc == loginindex) { // Login error
+            logger("error", `[${logOnOptions.accountName}] Error logging in! ${err}`);
+        } else { // Connection loss
+            if (controller.relogQueue.includes(loginindex)) return; // Don't handle this event if account is already waiting for relog
+
+            logger("info", `[${logOnOptions.accountName}] Lost connection to Steam. ${err}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
+            this.handleRelog();
+        }
+    });
 };
 
 module.exports = bot;
