@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 11:28:26
+ * Last Modified: 18.10.2022 12:15:50
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -33,6 +33,7 @@ const bot = function(logOnOptions, loginindex, logger) {
 
     this.logOnOptions = logOnOptions;
     this.loginindex   = loginindex;
+    this.logger       = logger;
 
     // Create new steam-user bot object
     this.client = new SteamUser({ autoRelogin: false });
@@ -53,7 +54,8 @@ const bot = function(logOnOptions, loginindex, logger) {
             controller.relogQueue.splice(controller.relogQueue.indexOf(loginindex), 1); // Remove this loginindex from the queue
         }
 
-        if (config.onlinestatus) this.client.setPersona(config.onlinestatus); // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
+        // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
+        if (config.onlinestatus) this.client.setPersona(config.onlinestatus);
         this.client.gamesPlayed(config.playingGames); // Start playing games
     });
 
@@ -63,6 +65,7 @@ const bot = function(logOnOptions, loginindex, logger) {
 
         logger("info", `[${logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`);
 
+        // Respond with afk message if enabled in config
         if (config.afkMessage.length > 0) {
             logger("info", "Responding with: " + config.afkMessage);
 
@@ -75,33 +78,42 @@ const bot = function(logOnOptions, loginindex, logger) {
         if (controller.relogQueue.includes(loginindex)) return; // Don't handle this event if account is already waiting for relog
 
         logger("info", `[${logOnOptions.accountName}] Lost connection to Steam. Message: ${msg}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
-        controller.relogQueue.push(loginindex);
 
-        // Check if it's our turn to relog every 1 sec after waiting relogDelay ms
-        setTimeout(() => {
-            var relogInterval = setInterval(() => {
-                if (controller.relogQueue.indexOf(loginindex) != 0) return; // Not our turn? stop and retry in the next iteration
-
-                clearInterval(relogInterval); // Prevent any retries
-                this.client.logOff();
-
-                logger("info", `[${logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`);
-
-                // Generate steam guard code again if user provided a shared_secret
-                if (logOnOptions["sharedSecretForRelog"]) {
-                    logOnOptions["twoFactorCode"] = SteamTotp.generateAuthCode(logOnOptions["sharedSecretForRelog"]);
-                }
-
-                // Attach relogdelay timeout
-                setTimeout(() => {
-                    logger("info", `[${logOnOptions.accountName}] Logging in...`);
-
-                    this.client.logOn(logOnOptions);
-                }, config.loginDelay);
-            }, 1000);
-        }, config.relogDelay);
+        this.handleRelog();
     });
 
 };
 
 module.exports = bot;
+
+
+// Handles relogging this bot account
+bot.prototype.handleRelog = function() {
+    if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this request if account is already waiting for relog
+
+    controller.relogQueue.push(this.loginindex); // Add account to queue
+
+    // Check if it's our turn to relog every 1 sec after waiting relogDelay ms
+    setTimeout(() => {
+        var relogInterval = setInterval(() => {
+            if (controller.relogQueue.indexOf(this.loginindex) != 0) return; // Not our turn? stop and retry in the next iteration
+
+            clearInterval(relogInterval); // Prevent any retries
+            this.client.logOff();
+
+            this.logger("info", `[${this.logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`);
+
+            // Generate steam guard code again if user provided a shared_secret
+            if (this.logOnOptions["sharedSecretForRelog"]) {
+                this.logOnOptions["twoFactorCode"] = SteamTotp.generateAuthCode(this.logOnOptions["sharedSecretForRelog"]);
+            }
+
+            // Attach relogdelay timeout
+            setTimeout(() => {
+                this.logger("info", `[${this.logOnOptions.accountName}] Logging in...`);
+
+                this.client.logOn(this.logOnOptions);
+            }, config.loginDelay);
+        }, 1000);
+    }, config.relogDelay);
+};
