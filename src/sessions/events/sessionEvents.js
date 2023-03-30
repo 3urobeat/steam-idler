@@ -4,7 +4,7 @@
  * Created Date: 09.10.2022 12:52:30
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 19:11:57
+ * Last Modified: 30.03.2023 14:32:40
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -21,6 +21,8 @@ const sessionHandler = require("../sessionHandler.js");
 sessionHandler.prototype._attachEvents = function() {
 
     this.session.on("authenticated", () => { // Success
+        logger.stopReadInput("Login request accepted"); // Should the user have approved this login attempt via the mobile Steam Guard app, stop readInput() from handle2FA
+
         logger("debug", `[${this.thisbot}] getRefreshToken(): Login request successful, '${this.session.accountName}' authenticated. Resolving Promise...`);
 
         this._resolvePromise(this.session.refreshToken);

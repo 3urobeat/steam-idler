@@ -4,7 +4,7 @@
  * Created Date: 09.10.2022 12:59:31
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 19:55:47
+ * Last Modified: 30.03.2023 14:34:28
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -73,7 +73,11 @@ sessionHandler.prototype._get2FAUserInput = function() {
             logger("info", `[${this.thisbot}] steamGuard input empty, skipping account...`, false, true);
 
             this._resolvePromise(null);
-        } else { // User entered code
+
+        } else { // User entered code or accepted login request via the mobile steam guard app
+
+            if (text == "Login request accepted") return; // We must not call submitSteamGuard() when authenticated event calls stopReadInput("Login request accepted")
+
             logger("info", `[${this.thisbot}] Accepting Steam Guard Code...`, false, true);
             this._acceptSteamGuardCode(text.toString().trim()); // Pass code to accept function
         }
