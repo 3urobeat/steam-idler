@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 30.03.2023 12:15:20
+ * Last Modified: 30.03.2023 12:33:12
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -156,7 +156,7 @@ bot.prototype.handleRelog = function() {
                 let refreshToken = await this.session.getToken();
                 if (!refreshToken) return; // Stop execution if getToken aborted login attempt
 
-                this.client.logOn(this.logOnOptions);
+                this.client.logOn({ "refreshToken": refreshToken });
             }, config.loginDelay);
         }, 1000);
     }, config.relogDelay);
