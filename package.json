@@ -1,6 +1,6 @@
 {
     "name": "steam-idler",
-    "version": "1.4",
+    "version": "1.5",
     "description": "Simple cross-platform Steam game idler.",
     "main": "idler.js",
     "dependencies": {
