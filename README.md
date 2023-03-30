@@ -13,12 +13,21 @@ Open the accounts.txt file and put an account in each line in this format: `user
   
 ## Config
 Open the `config.json` in a text editor and put the games you wan't to idle inside the `playingGames` brackets.  
-  
-The first brackets specify a custom game. You can leave the brackets empty to show no custom game status.  
+
+You can set a custom game by passing a String as the first argument.  
 The other numbers define the games the script will start playing. You can add more by adding a comma and the app id.  
+
+&nbsp;
+
+Examples:  
+- Display "In non-Steam game: Minecraft" and idle TF2 & CS:GO: `"playingGames": ["Minecraft", 440, 730]`  
+- Display "Currently In-Game: Team Fortress 2" and idle TF2 & CS:GO: `"playingGames": [440, 730]`  
+- Only appear as online and don't idle anything: `"playingGames": []`  
   
-If you want to appear online you can provide a number from [this list](https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js) as `onlinestatus`.  
-If set to `null` (default) the bot will not change your online status.  
+&nbsp;
+  
+To set a different online status you can choose a number from [this list](https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js) and provide it at `onlinestatus`.  
+If set to `null` the bot will not change your online status.  
   
 To set a message that will be send on a recieved message while idling, set a message as `afkMessage`.  
 Leave the brackets empty (like this: `""`) to not send any message back.  
