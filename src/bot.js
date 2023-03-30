@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 19:20:28
+ * Last Modified: 30.03.2023 12:15:20
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -39,6 +39,9 @@ const bot = function(logOnOptions, loginindex) {
 
     this.session;
 
+    // Attach relevant steam-user events
+    this.attachEventListeners();
+
 };
 
 module.exports = bot;
@@ -58,8 +61,10 @@ bot.prototype.login = async function() {
 
     setTimeout(() => this.client.logOn({ "refreshToken": refreshToken }), config.loginDelay); // Log in with logOnOptions
 
+};
 
-    /* ------------ Attach relevant steam-user events ------------ */
+
+bot.prototype.attachEventListeners = function() {
 
     this.client.on("loggedOn", () => { // This account is now logged on
         controller.nextacc++; // The next account can start
@@ -119,6 +124,7 @@ bot.prototype.login = async function() {
             this.handleRelog();
         }
     });
+
 };
 
 
