@@ -6,9 +6,9 @@
     "dependencies": {
         "@seald-io/nedb": "^4.0.1",
         "output-logger": "^2.2.4",
-        "steam-session": "^0.0.5-alpha",
+        "steam-session": "^1.1.0",
         "steam-totp": "^2.1.2",
-        "steam-user": "^4.27.1"
+        "steam-user": "^4.28.0"
     },
     "scripts": {
         "start": "node idler.js"
