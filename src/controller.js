@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 12.03.2023 20:49:56
+ * Last Modified: 30.03.2023 12:03:54
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -48,6 +48,8 @@ function importLogininfo() {
             var data = fs.readFileSync("./accounts.txt", "utf8").split("\n");
 
             if (data[0].startsWith("//Comment")) data = data.slice(1); // Remove comment from array
+
+            data = data.filter(e => e.length > 0); // Remove empty lines to avoid issues like this: https://github.com/HerrEurobeat/steam-idler/issues/7
 
             if (data == "") {
                 logger("error", "No accounts found in accounts.txt! Aborting...");
