@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 30.03.2023 12:33:12
+ * Last Modified: 22.05.2023 21:58:15
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -34,8 +34,8 @@ const bot = function(logOnOptions, loginindex) {
     this.logOnOptions = logOnOptions;
     this.loginindex   = loginindex;
 
-    // Create new steam-user bot object
-    this.client = new SteamUser({ autoRelogin: false });
+    // Create new steam-user bot object. Disable autoRelogin as we have our own queue system and enable picsCache to collect information about owned apps
+    this.client = new SteamUser({ autoRelogin: false, enablePicsCache: true });
 
     this.session;
 
@@ -75,12 +75,39 @@ bot.prototype.attachEventListeners = function() {
 
             controller.relogQueue.splice(controller.relogQueue.indexOf(this.loginindex), 1); // Remove this loginindex from the queue
         } else {
-            logger("info", `[${this.logOnOptions.accountName}] Logged in and idling games.\n`);
+            logger("info", `[${this.logOnOptions.accountName}] Logged in! Waiting for ownershipCached event...`);
         }
 
         // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
         if (config.onlinestatus) this.client.setPersona(config.onlinestatus);
-        this.client.gamesPlayed(config.playingGames); // Start playing games
+    });
+
+
+    this.client.on("ownershipCached", () => { // Emitted when steam-user knows about which apps we own
+        let ownedLicenses = this.client.getOwnedApps();
+
+        // Check if we are missing a license
+        let missingLicenses = [];
+        missingLicenses = config.playingGames.filter(e => !isNaN(e) && !ownedLicenses.includes(e));
+
+        // Redeem missing licenses or start playing if none are missing. Event will get triggered again on change.
+        if (missingLicenses.length > 0) {
+            logger("info", `[${this.logOnOptions.accountName}] Starting to request ${missingLicenses.length} missing licenses before starting to idle...`);
+
+            this.client.requestFreeLicense(missingLicenses, (err) => {
+                if (err) {
+                    logger("error", `[${this.logOnOptions.accountName}] Failed to request missing licenses! Starting to idle anyway...`);
+                    this.client.gamesPlayed(config.playingGames); // Start playing games
+                } else {
+                    logger("info", `[${this.logOnOptions.accountName}] Successfully requested ${missingLicenses.length} licenses. Starting to idle in a moment...`);
+                }
+            });
+
+        } else {
+
+            logger("info", `[${this.logOnOptions.accountName}] Starting to idle ${config.playingGames.length} games...`);
+            this.client.gamesPlayed(config.playingGames); // Start playing games
+        }
     });
 
 
