@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 30.03.2023 15:06:27
+ * Last Modified: 24.05.2023 21:09:20
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -19,6 +19,8 @@
 const fs        = require("fs");
 const logger    = require("output-logger");
 const SteamTotp = require("steam-totp");
+
+const config    = require("../config.json");
 
 // Export both values to make them accessable from bot.js
 module.exports.nextacc    = 0;
@@ -71,6 +73,36 @@ function importLogininfo() {
     });
 }
 
+/**
+ * Helper functions to import proxies from proxies.txt
+ * @returns {Promise} proxies array on completion
+ */
+function importProxies() {
+    return new Promise((resolve) => {
+        let proxies = []; // When the file is just created there can't be proxies in it (this bot doesn't support magic)
+
+        if (!fs.existsSync("./proxies.txt")) {
+            resolve([ null ]);
+        } else { // File does seem to exist so now we can try and read it
+            proxies = fs.readFileSync("./proxies.txt", "utf8").split("\n");
+            proxies = proxies.filter(str => str != ""); // Remove empty lines
+
+            if (proxies.length > 0 && proxies[0].startsWith("//Comment")) proxies = proxies.slice(1); // Remove comment from array
+
+            if (config.useLocalIP) proxies.unshift(null); // Add no proxy (local ip) if useLocalIP is true
+
+            // Check if no proxies were found (can only be the case when useLocalIP is false)
+            if (proxies.length == 0) {
+                logger("", "", true);
+                logger("error", "useLocalIP is turned off in config.json but I couldn't find any proxies in proxies.txt!\n        Aborting as I don't have at least one IP to log in with!", true);
+                return process.exit();
+            }
+        }
+
+        resolve(proxies);
+    });
+}
+
 
 /* ------------ Login all accounts ------------ */
 module.exports.start = async () => {
@@ -81,6 +113,9 @@ module.exports.start = async () => {
 
     // Call helper function to import logininfo
     let logininfo = await importLogininfo();
+
+    // Call helper function to import proxies
+    let proxies = await importProxies();
 
     // Start creating a bot object for each account
     logger("", "", true);
@@ -106,7 +141,7 @@ module.exports.start = async () => {
 
                     // Create new bot object
                     let botfile = require("./bot.js");
-                    let bot = new botfile(logOnOptions, i, logger);
+                    let bot = new botfile(logOnOptions, i, proxies);
 
                     bot.login();
                 }

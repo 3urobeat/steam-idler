@@ -8,16 +8,21 @@ Download this repository as `.zip`, extract the folder and open a Terminal/Power
 Type `npm install` to install needed packages.  
 
 ## Accounts
-Open the accounts.txt file and put an account in each line in this format: `username:password:shared_secret`.  
+Open the `accounts.txt` file and put an account in each line in this format: `username:password:shared_secret`.  
 `shared_secret` is optional. Only provide `username:password` if you don't want to use it.  
+
+## Proxies
+If you are using many accounts it might make sense to add proxies so you don't have tons of sessions from the same IP.  
+To do this, open the `proxies.txt` file and put as many HTTP proxies as you wish, line per line.  
+The bot will spread all accounts equally on all available proxies, including your local IP.  
+Your proxies must follow this format: `http://user:pass@1.2.3.4:8081`  
+Please note that Steam might block some proxy providers.  
   
 ## Config
 Open the `config.json` in a text editor and put the games you wan't to idle inside the `playingGames` brackets.  
 
 You can set a custom game by passing a String as the first argument.  
 The other numbers define the games the script will start playing. You can add more by adding a comma and the app id.  
-
-&nbsp;
 
 Examples:  
 - Display "In non-Steam game: Minecraft" and idle TF2 & CS:GO: `"playingGames": ["Minecraft", 440, 730]`  
