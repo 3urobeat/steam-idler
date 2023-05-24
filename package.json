@@ -5,7 +5,7 @@
     "main": "idler.js",
     "dependencies": {
         "@seald-io/nedb": "^4.0.2",
-        "output-logger": "^2.3.0",
+        "output-logger": "^2.3.1",
         "steam-session": "^1.2.2",
         "steam-totp": "^2.1.2",
         "steam-user": "^4.28.4"
