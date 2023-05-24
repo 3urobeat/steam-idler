@@ -1,7 +1,7 @@
 {
     "name": "steam-idler",
-    "version": "1.5",
-    "description": "Simple cross-platform Steam game idler.",
+    "version": "1.6",
+    "description": "Simple cross-platform Steam game idler with multi account support",
     "main": "idler.js",
     "dependencies": {
         "@seald-io/nedb": "^4.0.2",
