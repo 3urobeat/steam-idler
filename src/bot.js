@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 22.05.2023 21:58:15
+ * Last Modified: 24.05.2023 21:11:50
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -29,13 +29,14 @@ const config         = require("../config.json");
  * @param {Object} logOnOptions The logOnOptions obj for this account
  * @param {Number} loginindex The loginindex for this account
  */
-const bot = function(logOnOptions, loginindex) {
+const bot = function(logOnOptions, loginindex, proxies) {
 
     this.logOnOptions = logOnOptions;
     this.loginindex   = loginindex;
+    this.proxy        = proxies[loginindex % proxies.length]; // Spread all accounts equally with a simple modulo calculation
 
     // Create new steam-user bot object. Disable autoRelogin as we have our own queue system and enable picsCache to collect information about owned apps
-    this.client = new SteamUser({ autoRelogin: false, enablePicsCache: true });
+    this.client = new SteamUser({ autoRelogin: false, enablePicsCache: true, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
 
     this.session;
 
@@ -51,7 +52,8 @@ module.exports = bot;
 bot.prototype.login = async function() {
 
     /* ------------ Login ------------ */
-    logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`);
+    if (this.proxy) logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds with proxy '${this.proxy}'...`);
+        else logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`);
 
     // Get new session for this account and log in
     this.session     = new sessionHandler(this.client, this.logOnOptions.accountName, this.loginindex, this.logOnOptions);
