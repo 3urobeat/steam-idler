@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 28.06.2023 11:24:42
+ * Last Modified: 28.06.2023 13:46:57
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -55,8 +55,13 @@ bot.prototype.login = async function() {
     if (this.proxy) logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds with proxy '${this.proxy}'...`);
         else logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds...`);
 
+    // Generate steamGuardCode with shared secret if one was provided
+    if (this.logOnOptions.sharedSecret) {
+        this.logOnOptions.steamGuardCode = SteamTotp.generateAuthCode(this.logOnOptions.sharedSecret);
+    }
+
     // Get new session for this account and log in
-    this.session     = new sessionHandler(this.client, this.logOnOptions.accountName, this.loginindex, this.logOnOptions);
+    this.session = new sessionHandler(this.client, this.logOnOptions.accountName, this.loginindex, this.logOnOptions);
 
     let refreshToken = await this.session.getToken();
     if (!refreshToken) return; // Stop execution if getToken aborted login attempt
@@ -183,14 +188,14 @@ bot.prototype.handleRelog = function() {
 
             logger("info", `[${this.logOnOptions.accountName}] It is now my turn. Relogging in ${config.loginDelay / 1000} seconds...`);
 
-            // Generate steam guard code again if user provided a shared_secret
-            if (this.logOnOptions["sharedSecretForRelog"]) {
-                this.logOnOptions["twoFactorCode"] = SteamTotp.generateAuthCode(this.logOnOptions["sharedSecretForRelog"]);
-            }
-
             // Attach relogdelay timeout
             setTimeout(async () => {
                 logger("info", `[${this.logOnOptions.accountName}] Logging in...`);
+
+                // Generate steamGuardCode with shared secret if one was provided
+                if (this.logOnOptions.sharedSecret) {
+                    this.logOnOptions.steamGuardCode = SteamTotp.generateAuthCode(this.logOnOptions.sharedSecret);
+                }
 
                 let refreshToken = await this.session.getToken();
                 if (!refreshToken) return; // Stop execution if getToken aborted login attempt

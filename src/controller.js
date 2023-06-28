@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 24.05.2023 21:16:01
+ * Last Modified: 28.06.2023 13:47:13
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -16,11 +16,10 @@
 
 
 // Handles creating bot objects, providing them with data and relogging
-const fs        = require("fs");
-const logger    = require("output-logger");
-const SteamTotp = require("steam-totp");
+const fs     = require("fs");
+const logger = require("output-logger");
 
-const config    = require("../config.json");
+const config = require("../config.json");
 
 // Export both values to make them accessable from bot.js
 module.exports.nextacc    = 0;
@@ -43,29 +42,34 @@ function importLogininfo() {
     return new Promise((resolve) => {
         logger("info", "Loading logininfo from accounts.txt...");
 
-        var logininfo = {};
+        let logininfo = {};
 
         // Either use logininfo.json or accounts.txt:
         if (fs.existsSync("./accounts.txt")) {
-            var data = fs.readFileSync("./accounts.txt", "utf8").split("\n");
+            let data = fs.readFileSync("./accounts.txt", "utf8").split("\n");
 
-            if (data[0].startsWith("//Comment")) data = data.slice(1); // Remove comment from array
+            if (data.length > 0 && data[0].startsWith("//Comment")) data = data.slice(1); // Remove comment from array
 
-            data = data.filter(e => e.length > 0); // Remove empty lines to avoid issues like this: https://github.com/HerrEurobeat/steam-idler/issues/7
+            if (data != "") {
+                logininfo = {}; // Set empty object
+                data.forEach((e) => {
+                    if (e.length < 2) return; // If the line is empty ignore it to avoid issues like this: https://github.com/HerrEurobeat/steam-comment-service-bot/issues/80
+                    e = e.split(":");
+                    e[e.length - 1] = e[e.length - 1].replace("\r", ""); // Remove Windows next line character from last index (which has to be the end of the line)
 
-            if (data == "") {
-                logger("error", "No accounts found in accounts.txt! Aborting...");
-                process.exit(1);
+                    // Format logininfo object and use accountName as key to allow the order to change
+                    logininfo[e[0]] = {
+                        accountName: e[0],
+                        password: e[1],
+                        sharedSecret: e[2],
+                        steamGuardCode: null
+                    };
+                });
+
+                logger("info", `Found ${Object.keys(logininfo).length} accounts in accounts.txt, not checking for logininfo.json...`, false, true, logger.animation("loading"));
+
+                return resolve(logininfo);
             }
-
-            data.forEach((e, i) => {
-                if (e.length < 2) return; // If the line is empty ignore it to avoid issues like this: https://github.com/HerrEurobeat/steam-comment-service-bot/issues/80
-                e = e.split(":");
-                e[e.length - 1] = e[e.length - 1].replace("\r", ""); // Remove Windows next line character from last index (which has to be the end of the line)
-                logininfo["bot" + i] = [e[0], e[1], e[2]];
-
-                if (i == data.length - 1) resolve(logininfo); // Resolve promise with obj on last iteration
-            });
         } else {
             logger("error", "No accounts found in accounts.txt! Aborting...");
             process.exit(1);
@@ -127,21 +131,9 @@ module.exports.start = async () => {
                 if (this.nextacc == i) { // Check if it is our turn
                     clearInterval(readycheckinterval);
 
-                    // Construct logOnOptions obj which is passed to all bot objects
-                    let logOnOptions = {
-                        accountName: e[0],
-                        password: e[1]
-                    };
-
-                    // If a shared secret was provided in the logininfo then add it to logOnOptions object
-                    if (e[2] && e[2] != "") {
-                        logOnOptions["twoFactorCode"] = SteamTotp.generateAuthCode(e[2]);
-                        logOnOptions["sharedSecretForRelog"] = e[2]; // Add raw shared_secret to obj as well to be able to access it from disconnected event
-                    }
-
                     // Create new bot object
                     let botfile = require("./bot.js");
-                    let bot = new botfile(logOnOptions, i, proxies);
+                    let bot = new botfile(e, i, proxies);
 
                     bot.login();
                 }
