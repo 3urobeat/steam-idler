@@ -1,15 +1,21 @@
 # steam-idler
 Simple cross-platform Steam game idler with multi account support.
 
-### How to use:
+&nbsp;
+
+## How to use:
 Make sure to have [node.js](https://nodejs.org/) installed.  
 Download this repository as `.zip`, extract the folder and open a Terminal/Power Shell/Console in the folder.  
 
-Type `npm install` to install needed packages.  
+Type `npm install` to install all dependencies.  
+
+&nbsp;
 
 ## Accounts
 Open the `accounts.txt` file and put an account in each line in this format: `username:password:shared_secret`.  
 `shared_secret` is optional. Only provide `username:password` if you don't want to use it.  
+
+&nbsp;
 
 ## Proxies
 If you are using many accounts it might make sense to add proxies so you don't have tons of sessions from the same IP.  
@@ -17,12 +23,15 @@ To do this, open the `proxies.txt` file and put as many HTTP proxies as you wish
 The bot will spread all accounts equally on all available proxies, including your local IP.  
 Your proxies must follow this format: `http://user:pass@1.2.3.4:8081`  
 Please note that Steam might block some proxy providers.  
+
+&nbsp;
   
 ## Config
 Open the `config.json` in a text editor and put the games you wan't to idle inside the `playingGames` brackets.  
 
 You can set a custom game by passing a String as the first argument.  
 The other numbers define the games the script will start playing. You can add more by adding a comma and the app id.  
+The bot will automatically request licenses for free-to-play games which are set here but your accounts do not own yet. This is limited to 50 games per hour.
 
 Examples:  
 - Display "In non-Steam game: Minecraft" and idle TF2 & CS:GO: `"playingGames": ["Minecraft", 440, 730]`  
@@ -39,9 +48,10 @@ Leave the brackets empty (like this: `""`) to not send any message back.
 
 The loginDelay and relogDelay values control the time waited between logging in multiple accounts and the time waited before a relog is attempted after an account lost connection.  
 I recommend not touching them as they have good defaults to avoid cooldowns, however if you know what you are doing - they are there.  
-  
 
-### Start
+&nbsp;
+
+## Start
 Then just type `node idler.js` to start the script.  
 The script will try to log in and ask you for your Steam Guard code if it needs one. When it is logged in a logged in message will be displayed.  
 
