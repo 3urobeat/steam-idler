@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 24.05.2023 21:11:50
+ * Last Modified: 28.06.2023 11:24:42
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -35,8 +35,8 @@ const bot = function(logOnOptions, loginindex, proxies) {
     this.loginindex   = loginindex;
     this.proxy        = proxies[loginindex % proxies.length]; // Spread all accounts equally with a simple modulo calculation
 
-    // Create new steam-user bot object. Disable autoRelogin as we have our own queue system and enable picsCache to collect information about owned apps
-    this.client = new SteamUser({ autoRelogin: false, enablePicsCache: true, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
+    // Create new steam-user bot object. Disable autoRelogin as we have our own queue system
+    this.client = new SteamUser({ autoRelogin: false, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
 
     this.session;
 
@@ -77,39 +77,49 @@ bot.prototype.attachEventListeners = function() {
 
             controller.relogQueue.splice(controller.relogQueue.indexOf(this.loginindex), 1); // Remove this loginindex from the queue
         } else {
-            logger("info", `[${this.logOnOptions.accountName}] Logged in! Waiting for ownershipCached event...`);
+            logger("info", `[${this.logOnOptions.accountName}] Logged in! Checking for missing licenses...`);
         }
 
         // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
         if (config.onlinestatus) this.client.setPersona(config.onlinestatus);
-    });
 
+        // Get all licenses this account owns
+        let options = {
+            includePlayedFreeGames: true,
+            filterAppids: config.playingGames.filter(e => !isNaN(e)), // We only need to check for these appIDs. Filter custom game string
+            includeFreeSub: false
+        };
 
-    this.client.on("ownershipCached", () => { // Emitted when steam-user knows about which apps we own
-        let ownedLicenses = this.client.getOwnedApps();
+        this.client.getUserOwnedApps(this.client.steamID, options, (err, res) => {
+            if (err) {
+                logger("error", `[${this.logOnOptions.accountName}] Failed to get owned apps! Attempting to play set appIDs anyways...`);
 
-        // Check if we are missing a license
-        let missingLicenses = [];
-        missingLicenses = config.playingGames.filter(e => !isNaN(e) && !ownedLicenses.includes(e));
+                // Set playinggames for main account and child account
+                this.client.gamesPlayed(config.playingGames); // Start playing games
+                return;
+            }
 
-        // Redeem missing licenses or start playing if none are missing. Event will get triggered again on change.
-        if (missingLicenses.length > 0) {
-            logger("info", `[${this.logOnOptions.accountName}] Starting to request ${missingLicenses.length} missing licenses before starting to idle...`);
+            // Check if we are missing a license
+            let missingLicenses = config.playingGames.filter(e => !isNaN(e) && res.apps.filter(f => f.appid == e).length == 0);
 
-            this.client.requestFreeLicense(missingLicenses, (err) => {
-                if (err) {
-                    logger("error", `[${this.logOnOptions.accountName}] Failed to request missing licenses! Starting to idle anyway...`);
-                    this.client.gamesPlayed(config.playingGames); // Start playing games
-                } else {
-                    logger("info", `[${this.logOnOptions.accountName}] Successfully requested ${missingLicenses.length} licenses. Starting to idle in a moment...`);
-                }
-            });
+            // Redeem missing licenses or start playing if none are missing. Event will get triggered again on change.
+            if (missingLicenses.length > 0) {
+                logger("info", `[${this.logOnOptions.accountName}] Requesting ${missingLicenses.length} missing license(s) before starting to play games set in config...`);
 
-        } else {
-
-            logger("info", `[${this.logOnOptions.accountName}] Starting to idle ${config.playingGames.length} games...`);
-            this.client.gamesPlayed(config.playingGames); // Start playing games
-        }
+                this.user.requestFreeLicense(missingLicenses, (err) => {
+                    if (err) {
+                        logger("error", `[${this.logOnOptions.accountName}] Failed to request missing licenses! Starting to play anyways...`);
+                        this.client.gamesPlayed(config.playingGames); // Start playing games
+                    } else {
+                        logger("info", `[${this.logOnOptions.accountName}] Successfully requested ${missingLicenses.length} missing game license(s)!`);
+                        setTimeout(() => this.client.gamesPlayed(config.playingGames), 2500);
+                    }
+                });
+            } else {
+                logger("info", `[${this.logOnOptions.accountName}] Starting to idle ${config.playingGames.length} games...`);
+                this.client.gamesPlayed(config.playingGames); // Start playing games
+            }
+        });
     });
 
 
