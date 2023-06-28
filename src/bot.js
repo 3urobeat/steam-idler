@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 28.06.2023 13:46:57
+ * Last Modified: 28.06.2023 19:01:44
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
@@ -109,6 +109,17 @@ bot.prototype.attachEventListeners = function() {
 
             // Redeem missing licenses or start playing if none are missing. Event will get triggered again on change.
             if (missingLicenses.length > 0) {
+                // Check if we are missing more than 50 licenses (limit per hour) and cut array
+                if (missingLicenses.length > 50) {
+                    logger("warn", `[${this.logOnOptions.accountName}] This account is missing more than 50 licenses! Steam only allows registering 50 licenses per hour.\n                             I will register 50 licenses now and relog this account in 1 hour to register the next 50 licenses.`);
+                    missingLicenses = missingLicenses.splice(0, 50);
+
+                    setTimeout(() => {
+                        logger("info", `[${this.logOnOptions.accountName}] Relogging account to register the next 50 licenses...`);
+                        this.handleRelog();
+                    }, 3.6e+6 + 300000); // 1 hour plus 5 minutes for good measure
+                }
+
                 logger("info", `[${this.logOnOptions.accountName}] Requesting ${missingLicenses.length} missing license(s) before starting to play games set in config...`);
 
                 this.user.requestFreeLicense(missingLicenses, (err) => {
