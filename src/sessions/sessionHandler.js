@@ -4,10 +4,10 @@
  * Created Date: 09.10.2022 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 18.10.2022 19:16:37
+ * Last Modified: 30.06.2023 09:43:18
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
+ * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -15,7 +15,7 @@
  */
 
 
-// This sessionHandler module is a modified version from my Steam Comment Service Bot: https://github.com/HerrEurobeat/steam-comment-service-bot
+// This sessionHandler module is a modified version from my Steam Comment Service Bot: https://github.com/3urobeat/steam-comment-service-bot
 
 const SteamUser    = require("steam-user"); // eslint-disable-line
 const SteamSession = require("steam-session"); // eslint-disable-line

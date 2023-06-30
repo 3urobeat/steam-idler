@@ -4,10 +4,10 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 28.06.2023 13:47:13
+ * Last Modified: 30.06.2023 09:43:18
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 3urobeat <https://github.com/HerrEurobeat>
+ * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -53,7 +53,7 @@ function importLogininfo() {
             if (data != "") {
                 logininfo = {}; // Set empty object
                 data.forEach((e) => {
-                    if (e.length < 2) return; // If the line is empty ignore it to avoid issues like this: https://github.com/HerrEurobeat/steam-comment-service-bot/issues/80
+                    if (e.length < 2) return; // If the line is empty ignore it to avoid issues like this: https://github.com/3urobeat/steam-comment-service-bot/issues/80
                     e = e.split(":");
                     e[e.length - 1] = e[e.length - 1].replace("\r", ""); // Remove Windows next line character from last index (which has to be the end of the line)
 
