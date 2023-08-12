@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 30.06.2023 09:43:18
+ * Last Modified: 12.08.2023 11:54:12
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -29,7 +29,7 @@ const config         = require("../config.json");
  * @param {Object} logOnOptions The logOnOptions obj for this account
  * @param {Number} loginindex The loginindex for this account
  */
-const bot = function(logOnOptions, loginindex, proxies) {
+const Bot = function(logOnOptions, loginindex, proxies) {
 
     this.logOnOptions = logOnOptions;
     this.loginindex   = loginindex;
@@ -45,11 +45,11 @@ const bot = function(logOnOptions, loginindex, proxies) {
 
 };
 
-module.exports = bot;
+module.exports = Bot;
 
 
 // Handles logging in this account
-bot.prototype.login = async function() {
+Bot.prototype.login = async function() {
 
     /* ------------ Login ------------ */
     if (this.proxy) logger("info", `Logging in ${this.logOnOptions.accountName} in ${config.loginDelay / 1000} seconds with proxy '${this.proxy}'...`);
@@ -71,7 +71,7 @@ bot.prototype.login = async function() {
 };
 
 
-bot.prototype.attachEventListeners = function() {
+Bot.prototype.attachEventListeners = function() {
 
     this.client.on("loggedOn", () => { // This account is now logged on
         controller.nextacc++; // The next account can start
@@ -139,8 +139,8 @@ bot.prototype.attachEventListeners = function() {
     });
 
 
-    this.client.on("friendMessage", (steamID, message) => {
-        var steamID64 = new SteamID(String(steamID)).getSteamID64();
+    this.client.chat.on("friendMessage", (steamID, message) => {
+        let steamID64 = new SteamID(String(steamID)).getSteamID64();
 
         logger("info", `[${this.logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`);
 
@@ -184,14 +184,14 @@ bot.prototype.attachEventListeners = function() {
 
 
 // Handles relogging this bot account
-bot.prototype.handleRelog = function() {
+Bot.prototype.handleRelog = function() {
     if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this request if account is already waiting for relog
 
     controller.relogQueue.push(this.loginindex); // Add account to queue
 
     // Check if it's our turn to relog every 1 sec after waiting relogDelay ms
     setTimeout(() => {
-        var relogInterval = setInterval(() => {
+        let relogInterval = setInterval(() => {
             if (controller.relogQueue.indexOf(this.loginindex) != 0) return; // Not our turn? stop and retry in the next iteration
 
             clearInterval(relogInterval); // Prevent any retries

@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 30.06.2023 09:43:18
+ * Last Modified: 12.08.2023 11:55:40
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -127,7 +127,7 @@ module.exports.start = async () => {
     Object.values(logininfo).forEach((e, i) => {
         setTimeout(() => {
 
-            var readycheckinterval = setInterval(() => {
+            let readycheckinterval = setInterval(() => {
                 if (this.nextacc == i) { // Check if it is our turn
                     clearInterval(readycheckinterval);
 
@@ -138,7 +138,7 @@ module.exports.start = async () => {
                     bot.login();
                 }
             }, 250);
+
         }, 1000);
     });
-
 };
