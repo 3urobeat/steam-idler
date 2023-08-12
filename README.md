@@ -31,12 +31,19 @@ Open the `config.json` in a text editor and put the games you wan't to idle insi
 
 You can set a custom game by passing a String as the first argument.  
 The other numbers define the games the script will start playing. You can add more by adding a comma and the app id.  
-The bot will automatically request licenses for free-to-play games which are set here but your accounts do not own yet. This is limited to 50 games per hour.
+The bot will automatically request licenses for free-to-play games which are set here but your accounts do not own yet. This is limited to 50 games per hour.  
+
+If you want to set specific games for specific accounts, pass an object containing `"accountName": []` as the first argument.  
+Any account not present in that object will use the general settings which you are now passing as argument 1-`n`.  
+See the 4th example below for a visual representation.
 
 Examples:  
 - Display "In non-Steam game: Minecraft" and idle TF2 & CS:GO: `"playingGames": ["Minecraft", 440, 730]`  
 - Display "Currently In-Game: Team Fortress 2" and idle TF2 & CS:GO: `"playingGames": [440, 730]`  
 - Only appear as online and don't idle anything: `"playingGames": []`  
+- Display "Specific Game" game & idle CSGO only for account "myacc1". Idle nothing for account "myacc25". Display "General Game" & idle TF2 for all other accounts: `"playingGames": [{ "myacc1": ["Specific Game", 730], "myacc25": [] }, "General Game", 440]`
+
+You don't have to keep `playingGames` on one line, this is done here for documentation purposes. I recommend spreading the array over multiple lines, especially when setting lots of different games for lots of different accounts.
   
 &nbsp;
   
