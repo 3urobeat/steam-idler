@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 12.08.2023 11:58:19
+ * Last Modified: 12.08.2023 13:31:01
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -88,10 +88,20 @@ Bot.prototype.attachEventListeners = function() {
         // Set online status if enabled (https://github.com/DoctorMcKay/node-steam-user/blob/master/enums/EPersonaState.js)
         if (config.onlinestatus) this.client.setPersona(config.onlinestatus);
 
+
+        // Check if user provided games specifically for this account
+        let configGames = config.playingGames;
+
+        if (typeof configGames[0] == "object") {
+            if (Object.keys(configGames[0]).includes(this.logOnOptions.accountName)) configGames = configGames[0][this.logOnOptions.accountName]; // Get the specific settings for this account if included
+                else configGames = configGames.slice(1);                                                                                          // ...otherwise remove object containing acc specific settings to use the generic ones
+        }
+
+
         // Get all licenses this account owns
         let options = {
             includePlayedFreeGames: true,
-            filterAppids: config.playingGames.filter(e => !isNaN(e)), // We only need to check for these appIDs. Filter custom game string
+            filterAppids: configGames.filter(e => !isNaN(e)), // We only need to check for these appIDs. Filter custom game string
             includeFreeSub: false
         };
 
@@ -100,12 +110,12 @@ Bot.prototype.attachEventListeners = function() {
                 logger("error", `[${this.logOnOptions.accountName}] Failed to get owned apps! Attempting to play set appIDs anyways...`);
 
                 // Set playinggames for main account and child account
-                this.client.gamesPlayed(config.playingGames); // Start playing games
+                this.client.gamesPlayed(configGames); // Start playing games
                 return;
             }
 
             // Check if we are missing a license
-            let missingLicenses = config.playingGames.filter(e => !isNaN(e) && res.apps.filter(f => f.appid == e).length == 0);
+            let missingLicenses = configGames.filter(e => !isNaN(e) && res.apps.filter(f => f.appid == e).length == 0);
 
             // Redeem missing licenses or start playing if none are missing. Event will get triggered again on change.
             if (missingLicenses.length > 0) {
@@ -125,15 +135,15 @@ Bot.prototype.attachEventListeners = function() {
                 this.user.requestFreeLicense(missingLicenses, (err) => {
                     if (err) {
                         logger("error", `[${this.logOnOptions.accountName}] Failed to request missing licenses! Starting to play anyways...`);
-                        this.client.gamesPlayed(config.playingGames); // Start playing games
+                        this.client.gamesPlayed(configGames); // Start playing games
                     } else {
                         logger("info", `[${this.logOnOptions.accountName}] Successfully requested ${missingLicenses.length} missing game license(s)!`);
-                        setTimeout(() => this.client.gamesPlayed(config.playingGames), 2500);
+                        setTimeout(() => this.client.gamesPlayed(configGames), 2500);
                     }
                 });
             } else {
-                logger("info", `[${this.logOnOptions.accountName}] Starting to idle ${config.playingGames.length} games...`);
-                this.client.gamesPlayed(config.playingGames); // Start playing games
+                logger("info", `[${this.logOnOptions.accountName}] Starting to idle ${configGames.length} games...`);
+                this.client.gamesPlayed(configGames); // Start playing games
             }
         });
     });
