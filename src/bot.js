@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 12.08.2023 11:54:12
+ * Last Modified: 12.08.2023 11:58:19
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -139,7 +139,9 @@ Bot.prototype.attachEventListeners = function() {
     });
 
 
-    this.client.chat.on("friendMessage", (steamID, message) => {
+    this.client.chat.on("friendMessage", (msg) => {
+        let message = msg.message_no_bbcode;
+        let steamID = msg.steamid_friend;
         let steamID64 = new SteamID(String(steamID)).getSteamID64();
 
         logger("info", `[${this.logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`);
