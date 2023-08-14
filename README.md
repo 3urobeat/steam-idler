@@ -33,15 +33,16 @@ You can set a custom game by passing a String as the first argument.
 The other numbers define the games the script will start playing. You can add more by adding a comma and the app id.  
 The bot will automatically request licenses for free-to-play games which are set here but your accounts do not own yet. This is limited to 50 games per hour.  
 
-If you want to set specific games for specific accounts, pass an object containing `"accountName": []` as the first argument.  
-Any account not present in that object will use the general settings which you are now passing as argument 1-`n`.  
+If you want to set specific games for specific accounts, pass an object containing `"accountName": []` for every account as the first argument.  
+Everything that follows will represent the "general" settings, which all accounts will use that are not included in the object.  
 See the 4th example below for a visual representation.
 
 Examples:  
-- Display "In non-Steam game: Minecraft" and idle TF2 & CS:GO: `"playingGames": ["Minecraft", 440, 730]`  
-- Display "Currently In-Game: Team Fortress 2" and idle TF2 & CS:GO: `"playingGames": [440, 730]`  
-- Only appear as online and don't idle anything: `"playingGames": []`  
-- Display "Specific Game" game & idle CSGO only for account "myacc1". Idle nothing for account "myacc25". Display "General Game" & idle TF2 for all other accounts: `"playingGames": [{ "myacc1": ["Specific Game", 730], "myacc25": [] }, "General Game", 440]`
+- Display "In non-Steam game: Minecraft" and idle TF2 & CS:GO: `"playingGames": ["Minecraft", 440, 730],`  
+- Display "Currently In-Game: Team Fortress 2" and idle TF2 & CS:GO: `"playingGames": [440, 730],`  
+- Only appear as online and don't idle anything: `"playingGames": [],`  
+- Display "Specific Game" game & idle CSGO only for account "myacc1". Idle nothing for account "myacc25". Display "General Game" & idle TF2 for all other accounts: `"playingGames": [{ "myacc1": ["Specific Game", 730], "myacc25": [] }, "General Game", 440],`
+- Idle CS:GO & Dota on "myacc1" and idle Dota on "myacc2". Play TF2 on every other account: `"playingGames". [{ "myacc1": [730, 570], "myacc2": [570] }, 440],`
 
 You don't have to keep `playingGames` on one line, this is done here for documentation purposes. I recommend spreading the array over multiple lines, especially when setting lots of different games for lots of different accounts.
   
@@ -58,8 +59,14 @@ I recommend not touching them as they have good defaults to avoid cooldowns, how
 
 &nbsp;
 
+**Important:**  
+Make sure that you don't forget any commas, the script will otherwise not start and throw a Syntax Error.  
+Take a look at the default `config.json` if you are unsure what you are missing.
+
+&nbsp;
+
 ## Start
 Then just type `node idler.js` to start the script.  
 The script will try to log in and ask you for your Steam Guard code if it needs one. When it is logged in a logged in message will be displayed.  
 
-Thats it. A very simple cross-platform steam game idling script powered by [DoctorMcKay's steam-user library](https://github.com/DoctorMcKay/node-steam-user).
+Thats it. A simple cross-platform Steam game idling script powered by [DoctorMcKay's steam-user library](https://github.com/DoctorMcKay/node-steam-user).
