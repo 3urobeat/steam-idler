@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 12.08.2023 13:31:01
+ * Last Modified: 20.08.2023 13:20:41
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -132,7 +132,7 @@ Bot.prototype.attachEventListeners = function() {
 
                 logger("info", `[${this.logOnOptions.accountName}] Requesting ${missingLicenses.length} missing license(s) before starting to play games set in config...`);
 
-                this.user.requestFreeLicense(missingLicenses, (err) => {
+                this.client.requestFreeLicense(missingLicenses, (err) => {
                     if (err) {
                         logger("error", `[${this.logOnOptions.accountName}] Failed to request missing licenses! Starting to play anyways...`);
                         this.client.gamesPlayed(configGames); // Start playing games
