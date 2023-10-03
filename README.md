@@ -13,6 +13,18 @@
 
 &nbsp;
 
+## Introduction
+This is a simple cross-platform Steam game idling bot, supporting multiple accounts.  
+It handles the connection management for all accounts for you, sends afk messages if enabled and of course idles the configured games.
+
+This project is a slimmed down version of my [steam-comment-service-bot](https://github.com/3urobeat/steam-comment-service-bot), for users only interested in game idling.  
+If you need more features, please check it out instead.  
+It does way more besides supporting commenting etc, has more advanced connection management features than present here and is updated more regularly.
+
+Please continue reading to learn how to set this bot up.
+
+&nbsp;
+
 ## Install
 Make sure to have [node.js](https://nodejs.org/) installed.  
 Download this repository as `.zip`, extract the folder and open a Terminal/Power Shell/Console in the folder.  
