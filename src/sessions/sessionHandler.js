@@ -4,7 +4,7 @@
  * Created Date: 09.10.2022 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 30.06.2023 09:43:18
+ * Last Modified: 03.10.2023 22:20:02
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -109,7 +109,7 @@ sessionHandler.prototype._resolvePromise = function(token) {
 sessionHandler.prototype._attemptCredentialsLogin = function() {
 
     // Init new session
-    this.session = new SteamSession.LoginSession(SteamSession.EAuthTokenPlatformType.SteamClient);
+    this.session = new SteamSession.LoginSession(SteamSession.EAuthTokenPlatformType.SteamClient, { httpProxy: this.bot.proxy });
 
     // Attach event listeners
     this._attachEvents();
