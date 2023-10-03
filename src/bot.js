@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 20.08.2023 13:20:41
+ * Last Modified: 03.10.2023 22:21:08
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -36,7 +36,7 @@ const Bot = function(logOnOptions, loginindex, proxies) {
     this.proxy        = proxies[loginindex % proxies.length]; // Spread all accounts equally with a simple modulo calculation
 
     // Create new steam-user bot object. Disable autoRelogin as we have our own queue system
-    this.client = new SteamUser({ autoRelogin: false, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
+    this.client = new SteamUser({ autoRelogin: false, renewRefreshTokens: true, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
 
     this.session;
 
