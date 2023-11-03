@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 03.11.2023 22:36:40
+ * Last Modified: 03.11.2023 22:43:23
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -18,6 +18,7 @@
 const SteamID   = require("steamid");
 const SteamTotp = require("steam-totp");
 const SteamUser = require("steam-user");
+const EResult   = SteamUser.EResult;
 
 const sessionHandler = require("./sessions/sessionHandler.js");
 const controller     = require("./controller.js");
@@ -153,8 +154,9 @@ Bot.prototype.attachEventListeners = function() {
         let message = msg.message_no_bbcode;
         let steamID = msg.steamid_friend;
         let steamID64 = new SteamID(String(steamID)).getSteamID64();
+        let username = this.client.users[steamID64].player_name;
 
-        logger("info", `[${this.logOnOptions.accountName}] Friend message from ${steamID64}: ${message}`);
+        logger("info", `[${this.logOnOptions.accountName}] Friend message from '${username}' (${steamID64}): ${message}`);
 
         // Respond with afk message if enabled in config
         if (config.afkMessage.length > 0) {
