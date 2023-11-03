@@ -4,7 +4,7 @@
  * Created Date: 17.10.2022 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 03.10.2023 22:21:08
+ * Last Modified: 03.11.2023 22:36:40
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 3urobeat <https://github.com/3urobeat>
@@ -182,9 +182,24 @@ Bot.prototype.attachEventListeners = function() {
 
         // Check if this is a login error or a connection loss
         if (controller.nextacc == this.loginindex) { // Login error
+
+            // Invalidate token to get a new session if this error was caused by an invalid refreshToken
+            if (err.eresult == EResult.InvalidPassword || err.eresult == EResult.AccessDenied || err == "Error: InvalidSignature") { // These are the most likely enums that will occur when an invalid token was used I guess (Checking via String here as it seems like there are EResults missing)
+                logger("debug", "Token login error: Calling SessionHandler's _invalidateTokenInStorage() function to get a new session when retrying this login attempt");
+
+                if (err.eresult == EResult.AccessDenied) logger("warn", `[${this.logOnOptions.accountName}] Detected an AccessDenied login error! This is usually caused by an invalid login token. Deleting login token, please re-submit your Steam Guard code.`);
+
+                this.session.invalidateTokenInStorage();
+
+                setTimeout(() => this.login(), 5000);
+                return;
+            }
+
             logger("error", `[${this.logOnOptions.accountName}] Error logging in! ${err}. Continuing with next account...`);
             controller.nextacc++; // The next account can start
+
         } else { // Connection loss
+
             if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this event if account is already waiting for relog
 
             logger("info", `[${this.logOnOptions.accountName}] Lost connection to Steam. ${err}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
