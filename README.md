@@ -91,4 +91,7 @@ Take a look at the default `config.json` if you are unsure what you are missing.
 Then just type `node idler.js` to start the script.  
 The script will try to log in and ask you for your Steam Guard code if it needs one. When it is logged in a logged in message will be displayed.  
 
+Every time an account looses connection it will print a session summary to a text file "playtime.txt" (will be created automtically).  
+This also applies to when you stop the bot manually. To turn this whole feature off, set `logPlaytimeToFile` in the config to `false`.
+
 Thats it. A simple cross-platform Steam game idling script powered by [DoctorMcKay's steam-user library](https://github.com/DoctorMcKay/node-steam-user).
