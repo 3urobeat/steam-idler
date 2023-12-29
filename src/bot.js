@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-29 18:28:58
+ * Last Modified: 2023-12-29 19:16:17
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -15,6 +15,8 @@
  */
 
 
+const fs        = require("fs");
+const util      = require("util");
 const SteamID   = require("steamid");
 const SteamTotp = require("steam-totp");
 const SteamUser = require("steam-user");
@@ -38,6 +40,7 @@ const Bot = function(logOnOptions, loginindex, proxies) {
 
     // Populated by loggedOn event handler, is used by logPlaytime to calculate playtime report for this account
     this.startedPlayingTimestamp = 0;
+    this.playedAppIDs = [];
 
     // Create new steam-user bot object. Disable autoRelogin as we have our own queue system
     this.client = new SteamUser({ autoRelogin: false, renewRefreshTokens: true, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
@@ -107,6 +110,7 @@ Bot.prototype.attachEventListeners = function() {
         let startPlaying = () => {
             this.client.gamesPlayed(configGames);
             this.startedPlayingTimestamp = Date.now();
+            this.playedAppIDs = configGames;
         };
 
         // Get all licenses this account owns
@@ -225,7 +229,11 @@ Bot.prototype.attachEventListeners = function() {
 Bot.prototype.handleRelog = function() {
     if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this request if account is already waiting for relog
 
-    controller.relogQueue.push(this.loginindex); // Add account to queue
+    // Call logPlaytime to print session results and reset startedPlayingTimestamp
+    this.logPlaytimeToFile();
+
+    // Add account to queue
+    controller.relogQueue.push(this.loginindex);
 
     // Check if it's our turn to relog every 1 sec after waiting relogDelay ms
     setTimeout(() => {
@@ -253,4 +261,26 @@ Bot.prototype.handleRelog = function() {
             }, config.loginDelay);
         }, 1000);
     }, config.relogDelay);
+};
+
+
+// Logs playtime to playtime.txt file
+Bot.prototype.logPlaytimeToFile = function() {
+
+    if (config.logPlaytimeToFile && this.startedPlayingTimestamp != 0) { // If timestamp is 0 then this was already logged
+        logger("debug", `Logging playtime for '${this.logOnOptions.accountName}' to playtime.txt...`);
+
+        // Helper function to convert timestamp into iso date string
+        let formatDate = (timestamp) => (new Date(timestamp - (new Date().getTimezoneOffset() * 60000))).toISOString().replace(/T/, " ").replace(/\..+/, "");
+
+        // Append session summary to playtime.txt
+        let str = `[${this.logOnOptions.accountName}] Session Summary (${formatDate(this.startedPlayingTimestamp)} - ${formatDate(Date.now())}) ~ Played for ${Math.trunc((Date.now() - this.startedPlayingTimestamp) / 1000)} seconds: ${util.inspect(this.playedAppIDs, false, 2, false)}`; // Inspect() formats array properly
+
+        fs.appendFileSync("./playtime.txt", str + "\n");
+    }
+
+    // Reset startedPlayingTimestamp
+    this.startedPlayingTimestamp = 0;
+    this.playedAppIDs = [];
+
 };

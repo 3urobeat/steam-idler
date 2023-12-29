@@ -4,5 +4,6 @@
     "afkMessage": "Hi, I'm idling.",
     "loginDelay": 2000,
     "relogDelay": 15000,
-    "useLocalIP": true
+    "useLocalIP": true,
+    "logPlaytimeToFile": true
 }
