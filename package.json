@@ -4,11 +4,11 @@
     "description": "Simple cross-platform Steam game idler with multi account support",
     "main": "idler.js",
     "dependencies": {
-        "@seald-io/nedb": "^4.0.2",
+        "@seald-io/nedb": "^4.0.3",
         "output-logger": "^2.3.7",
-        "steam-session": "^1.4.1",
+        "steam-session": "^1.7.1",
         "steam-totp": "^2.1.2",
-        "steam-user": "^5.0.1"
+        "steam-user": "^5.0.4"
     },
     "scripts": {
         "start": "node idler.js"
