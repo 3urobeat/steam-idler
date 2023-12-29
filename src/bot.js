@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-29 18:18:03
+ * Last Modified: 2023-12-29 18:28:58
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -35,6 +35,9 @@ const Bot = function(logOnOptions, loginindex, proxies) {
     this.logOnOptions = logOnOptions;
     this.loginindex   = loginindex;
     this.proxy        = proxies[loginindex % proxies.length]; // Spread all accounts equally with a simple modulo calculation
+
+    // Populated by loggedOn event handler, is used by logPlaytime to calculate playtime report for this account
+    this.startedPlayingTimestamp = 0;
 
     // Create new steam-user bot object. Disable autoRelogin as we have our own queue system
     this.client = new SteamUser({ autoRelogin: false, renewRefreshTokens: true, httpProxy: this.proxy, protocol: SteamUser.EConnectionProtocol.WebSocket }); // Forcing protocol for now: https://dev.doctormckay.com/topic/4187-disconnect-due-to-encryption-error-causes-relog-to-break-error-already-logged-on/?do=findComment&comment=10917
@@ -72,6 +75,7 @@ Bot.prototype.login = async function() {
 };
 
 
+// Attaches Steam event listeners
 Bot.prototype.attachEventListeners = function() {
 
     this.client.on("loggedOn", () => { // This account is now logged on
@@ -99,6 +103,12 @@ Bot.prototype.attachEventListeners = function() {
         }
 
 
+        // Shorthander to start playing
+        let startPlaying = () => {
+            this.client.gamesPlayed(configGames);
+            this.startedPlayingTimestamp = Date.now();
+        };
+
         // Get all licenses this account owns
         let options = {
             includePlayedFreeGames: true,
@@ -110,8 +120,7 @@ Bot.prototype.attachEventListeners = function() {
             if (err) {
                 logger("error", `[${this.logOnOptions.accountName}] Failed to get owned apps! Attempting to play set appIDs anyways...`);
 
-                // Set playinggames for main account and child account
-                this.client.gamesPlayed(configGames); // Start playing games
+                startPlaying(); // Start playing games
                 return;
             }
 
@@ -136,15 +145,15 @@ Bot.prototype.attachEventListeners = function() {
                 this.client.requestFreeLicense(missingLicenses, (err) => {
                     if (err) {
                         logger("error", `[${this.logOnOptions.accountName}] Failed to request missing licenses! Starting to play anyways...`);
-                        this.client.gamesPlayed(configGames); // Start playing games
+                        startPlaying(); // Start playing games
                     } else {
                         logger("info", `[${this.logOnOptions.accountName}] Successfully requested ${missingLicenses.length} missing game license(s)!`);
-                        setTimeout(() => this.client.gamesPlayed(configGames), 2500);
+                        setTimeout(() => startPlaying(), 2500);
                     }
                 });
             } else {
                 logger("info", `[${this.logOnOptions.accountName}] Starting to idle ${configGames.length} games...`);
-                this.client.gamesPlayed(configGames); // Start playing games
+                startPlaying(); // Start playing games
             }
         });
     });
