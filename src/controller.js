@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-29 18:19:19
+ * Last Modified: 2023-12-29 19:02:30
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -109,6 +109,8 @@ function importProxies() {
 
 
 /* ------------ Login all accounts ------------ */
+let allBots = [];
+
 module.exports.start = async () => {
     global.logger = logger; // Make logger accessible from everywhere in this project
 
@@ -136,9 +138,16 @@ module.exports.start = async () => {
                     let bot = new botfile(e, i, proxies);
 
                     bot.login();
+
+                    allBots.push(bot);
                 }
             }, 250);
 
         }, 1000);
     });
 };
+
+// Log playtime for all accounts on exit
+process.on("exit", () => {
+    allBots.forEach((e) => e.logPlaytimeToFile());
+});
