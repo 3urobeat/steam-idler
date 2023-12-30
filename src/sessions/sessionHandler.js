@@ -4,7 +4,7 @@
  * Created Date: 2022-10-09 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-30 23:42:09
+ * Last Modified: 2023-12-31 00:02:26
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -20,6 +20,7 @@
 const SteamUser    = require("steam-user"); // eslint-disable-line
 const SteamSession = require("steam-session"); // eslint-disable-line
 const nedb         = require("@seald-io/nedb");
+const qrcode       = require("qrcode");
 
 const config       = require("../../config.json");
 const controller   = require("../controller.js");
@@ -116,12 +117,19 @@ sessionHandler.prototype._attemptCredentialsLogin = function() {
     // Attach event listeners
     this._attachEvents();
 
-    // Login with QR Code if password is "qrcode", otherwise with normal credentials
+    // Login with QR Code if password is "qrcode", otherwise with normal credentials // TODO: Refactor this weird block of code
     if (this.logOnOptions.password == "qrcode") {
         this.session.startWithQR()
             .then((res) => {
                 if (res.actionRequired) { // This *should* always be the case
-                    // Somehow display the challenge url
+                    qrcode.toString(res.qrChallengeUrl, (err, string) => {
+                        if (err) {
+                            logger("error", `[${this.thisbot}] Failed to display QR Code! Is the URL '${res.qrChallengeUrl}' invalid? ${err}`);
+                            return this._resolvePromise(null);
+                        }
+
+                        logger("info", `[${this.logOnOptions.accountName}] Scan the following QR Code using your Steam Mobile App to start a new session:\n${string}`);
+                    }); // Display QR Code using qrcode library
                 }
             })
             .catch((err) => {
