@@ -4,7 +4,7 @@
  * Created Date: 2022-10-09 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-29 18:19:30
+ * Last Modified: 2023-12-30 23:42:09
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -21,6 +21,7 @@ const SteamUser    = require("steam-user"); // eslint-disable-line
 const SteamSession = require("steam-session"); // eslint-disable-line
 const nedb         = require("@seald-io/nedb");
 
+const config       = require("../../config.json");
 const controller   = require("../controller.js");
 
 
@@ -100,6 +101,7 @@ sessionHandler.prototype._resolvePromise = function(token) {
     }
 
     this.getTokenPromise(token);
+
 };
 
 
@@ -114,14 +116,29 @@ sessionHandler.prototype._attemptCredentialsLogin = function() {
     // Attach event listeners
     this._attachEvents();
 
-    // Login with credentials supplied in logOnOptions
-    this.session.startWithCredentials(this.logOnOptions)
-        .then((res) => {
-            if (res.actionRequired) this._handle2FA(res); // Let handle2FA helper handle 2FA if a code is requested
-        })
-        .catch((err) => {
-            if (err) this._handleCredentialsLoginError(err); // Let handleCredentialsLoginError helper handle a login error
-        });
+    // Login with QR Code if password is "qrcode", otherwise with normal credentials
+    if (this.logOnOptions.password == "qrcode") {
+        this.session.startWithQR()
+            .then((res) => {
+                if (res.actionRequired) { // This *should* always be the case
+                    // Somehow display the challenge url
+                }
+            })
+            .catch((err) => {
+                if (err) {
+                    logger("error", `[${this.thisbot}] Failed to start a QR-Code session! Are you having connectivity issues to Steam? ${err}`);
+                    this._resolvePromise(null); // Skips account
+                }
+            });
+    } else {
+        this.session.startWithCredentials(this.logOnOptions)
+            .then((res) => {
+                if (res.actionRequired) this._handle2FA(res); // Let handle2FA helper handle 2FA if a code is requested
+            })
+            .catch((err) => {
+                if (err) this._handleCredentialsLoginError(err); // Let handleCredentialsLoginError helper handle a login error
+            });
+    }
 
 };
 
