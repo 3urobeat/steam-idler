@@ -6,6 +6,7 @@
     "dependencies": {
         "@seald-io/nedb": "^4.0.3",
         "output-logger": "^2.3.7",
+        "qrcode": "^1.5.3",
         "steam-session": "^1.7.1",
         "steam-totp": "^2.1.2",
         "steam-user": "^5.0.4"
