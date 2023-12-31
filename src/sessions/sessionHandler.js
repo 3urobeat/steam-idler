@@ -4,7 +4,7 @@
  * Created Date: 2022-10-09 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-31 00:02:26
+ * Last Modified: 2023-12-31 12:14:43
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -20,9 +20,8 @@
 const SteamUser    = require("steam-user"); // eslint-disable-line
 const SteamSession = require("steam-session"); // eslint-disable-line
 const nedb         = require("@seald-io/nedb");
-const qrcode       = require("qrcode");
+const { StartSessionResponse } = require("steam-session/dist/interfaces-external.js"); // eslint-disable-line
 
-const config       = require("../../config.json");
 const controller   = require("../controller.js");
 
 
@@ -117,26 +116,14 @@ sessionHandler.prototype._attemptCredentialsLogin = function() {
     // Attach event listeners
     this._attachEvents();
 
-    // Login with QR Code if password is "qrcode", otherwise with normal credentials // TODO: Refactor this weird block of code
+    // Login with QR Code if password is "qrcode", otherwise with normal credentials
     if (this.logOnOptions.password == "qrcode") {
         this.session.startWithQR()
             .then((res) => {
-                if (res.actionRequired) { // This *should* always be the case
-                    qrcode.toString(res.qrChallengeUrl, (err, string) => {
-                        if (err) {
-                            logger("error", `[${this.thisbot}] Failed to display QR Code! Is the URL '${res.qrChallengeUrl}' invalid? ${err}`);
-                            return this._resolvePromise(null);
-                        }
-
-                        logger("info", `[${this.logOnOptions.accountName}] Scan the following QR Code using your Steam Mobile App to start a new session:\n${string}`);
-                    }); // Display QR Code using qrcode library
-                }
+                if (res.actionRequired) this._handleQRCode(res); // This *should* always be the case
             })
             .catch((err) => {
-                if (err) {
-                    logger("error", `[${this.thisbot}] Failed to start a QR-Code session! Are you having connectivity issues to Steam? ${err}`);
-                    this._resolvePromise(null); // Skips account
-                }
+                if (err) this._handleQrCodeLoginError(err);
             });
     } else {
         this.session.startWithCredentials(this.logOnOptions)
@@ -160,7 +147,7 @@ sessionHandler.prototype._attachEvents = function() {};
 
 /**
  * Internal: Handles submitting 2FA code
- * @param {object} res Response object from startWithCredentials() promise
+ * @param {StartSessionResponse} res Response object from startWithCredentials() promise
  */
 sessionHandler.prototype._handle2FA = function(res) {}; // eslint-disable-line
 
@@ -176,10 +163,22 @@ sessionHandler.prototype._get2FAUserInput = function() {};
 sessionHandler.prototype._acceptSteamGuardCode = function(code) {}; // eslint-disable-line
 
 /**
+ * Handles displaying a QR Code to login using the Steam Mobile App
+ * @param {StartSessionResponse} res Response object from startWithQR() promise
+ */
+sessionHandler.prototype._handleQRCode = function(res) {}; // eslint-disable-line
+
+/**
  * Helper function to make handling login errors easier
  * @param {*} err Error thrown by startWithCredentials()
  */
 sessionHandler.prototype._handleCredentialsLoginError = function(err) {}; // eslint-disable-line
+
+/**
+ * Helper function to make handling login errors easier
+ * @param {*} err Error thrown by startWithQR()
+ */
+sessionHandler.prototype._handleQrCodeLoginError = function(err) {}; // eslint-disable-line
 
 /**
  * Internal - Attempts to get a token for this account from tokens.db and checks if it's valid
