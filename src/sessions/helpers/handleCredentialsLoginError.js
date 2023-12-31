@@ -4,7 +4,7 @@
  * Created Date: 2022-10-09 13:22:39
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-29 18:19:09
+ * Last Modified: 2023-12-31 12:12:19
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -19,7 +19,10 @@ const { EResult } = require("steam-session");
 const sessionHandler = require("../sessionHandler.js");
 
 
-// Helper function to make handling login errors easier
+/**
+ * Helper function to make handling login errors easier
+ * @param {*} err Error thrown by startWithCredentials()
+ */
 sessionHandler.prototype._handleCredentialsLoginError = function(err) {
 
     // Log error message
@@ -31,5 +34,18 @@ sessionHandler.prototype._handleCredentialsLoginError = function(err) {
 
     // Skips account
     this._resolvePromise(null);
+
+};
+
+
+/**
+ * Helper function to make handling login errors easier
+ * @param {*} err Error thrown by startWithQR()
+ */
+sessionHandler.prototype._handleQrCodeLoginError = function(err) {
+
+    logger("error", `[${this.thisbot}] Failed to start a QR-Code session! Are you having connectivity issues to Steam? ${err}`);
+
+    this._resolvePromise(null); // Skips account
 
 };
