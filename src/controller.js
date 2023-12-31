@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-31 12:15:15
+ * Last Modified: 2023-12-31 12:24:21
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -120,7 +120,7 @@ module.exports.start = async () => {
     global.logger = logger; // Make logger accessible from everywhere in this project
 
     logger("", "", true, true);
-    logger("info", "steam-idler by 3urobeat v1.8\n");
+    logger("info", "steam-idler by 3urobeat v1.9\n");
 
     // Call helper function to import logininfo
     let logininfo = await importLogininfo();
