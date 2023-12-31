@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-29 19:02:30
+ * Last Modified: 2023-12-31 12:15:15
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
@@ -30,7 +30,8 @@ logger.options({
     msgstructure: `[${logger.Const.ANIMATION}] [${logger.Const.DATE} | ${logger.Const.TYPE}] ${logger.Const.MESSAGE}`,
     paramstructure: [logger.Const.TYPE, logger.Const.MESSAGE, "nodate", "remove", logger.Const.ANIMATION],
     outputfile: "./output.txt",
-    exitmessage: "Goodbye!"
+    exitmessage: "Goodbye!",
+    printdebug: false
 });
 
 
@@ -44,7 +45,7 @@ function importLogininfo() {
 
         let logininfo = {};
 
-        // Either use logininfo.json or accounts.txt:
+        // Import data from accounts.txt
         if (fs.existsSync("./accounts.txt")) {
             let data = fs.readFileSync("./accounts.txt", "utf8").split("\n");
 
@@ -52,6 +53,7 @@ function importLogininfo() {
 
             if (data != "") {
                 logininfo = {}; // Set empty object
+
                 data.forEach((e) => {
                     if (e.length < 2) return; // If the line is empty ignore it to avoid issues like this: https://github.com/3urobeat/steam-comment-service-bot/issues/80
                     e = e.split(":");
@@ -69,6 +71,9 @@ function importLogininfo() {
                 logger("info", `Found ${Object.keys(logininfo).length} accounts in accounts.txt, not checking for logininfo.json...`, false, true, logger.animation("loading"));
 
                 return resolve(logininfo);
+            } else {
+                logger("error", "No accounts found in accounts.txt! Aborting...");
+                process.exit(1);
             }
         } else {
             logger("error", "No accounts found in accounts.txt! Aborting...");
