@@ -34,8 +34,23 @@ Type `npm install` to install all dependencies.
 &nbsp;
 
 ## Accounts
-Open the `accounts.txt` file and put an account in each line in this format: `username:password:shared_secret`.  
+Open the `accounts.txt` file and put an account in each line in this format:  
+`username:password:shared_secret`
+
 `shared_secret` is optional. Only provide `username:password` if you don't want to use it.  
+
+&nbsp;
+
+**Login using QR-Code**:  
+You want to login an account by scanning a QR-Code using your Steam Mobile App? Easy!  
+Instead of providing a password for that account in `accounts.txt`, set the password to "qrcode".  
+On startup, the bot will display a QR-Code in the log which you can scan using your Steam Mobile App.
+
+Example:  
+`myaccount1:qrcode`
+
+The username you provide for that account does not need to be correct, it just needs to stay the same.  
+It is only used to store a token in the database to re-use the existing session when starting the bot the next time (so you don't need to scan the QR-Code on every startup).
 
 &nbsp;
 
