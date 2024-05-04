@@ -20,12 +20,12 @@ const sessionHandler = require("../sessionHandler.js");
 
 // Helper function which decodes a JsonWebToken - https://stackoverflow.com/a/38552302
 sessionHandler.prototype._decodeJWT = function(token) {
-    let payload = token.split(".")[1];           // Remove header and signature as we only care about the payload
-    let decoded = Buffer.from(payload, "base64"); // Decode
+    const payload = token.split(".")[1];           // Remove header and signature as we only care about the payload
+    const decoded = Buffer.from(payload, "base64"); // Decode
 
     // Try to parse json object
     try {
-        let parsed = JSON.parse(decoded.toString());
+        const parsed = JSON.parse(decoded.toString());
         return parsed;
     } catch (err) {
         logger("err", `Failed to parse JWT from tokens.db! Please report this issue if it keeps occurring! Getting a new session...\nError: ${err}`, true);
@@ -36,7 +36,7 @@ sessionHandler.prototype._decodeJWT = function(token) {
 
 /**
  * Internal - Attempts to get a token for this account from tokens.db and checks if it's valid
- * @param {function} [callback] Called with `refreshToken` (String) on success or `null` on failure
+ * @param {Function} [callback] Called with `refreshToken` (String) on success or `null` on failure
  */
 sessionHandler.prototype._getTokenFromStorage = function(callback) {
 
@@ -50,11 +50,11 @@ sessionHandler.prototype._getTokenFromStorage = function(callback) {
         // If we still have a token stored then check if it is still valid
         if (doc) {
             // Decode the token we've found
-            let jwtObj = this._decodeJWT(doc.token);
+            const jwtObj = this._decodeJWT(doc.token);
             if (!jwtObj) return callback(null); // Get new session if _decodeJWT() failed
 
             // Define valid until str to use it in log msg
-            let validUntilStr = `${(new Date(jwtObj.exp * 1000)).toISOString().replace(/T/, " ").replace(/\..+/, "")} (GMT time)`;
+            const validUntilStr = `${(new Date(jwtObj.exp * 1000)).toISOString().replace(/T/, " ").replace(/\..+/, "")} (GMT time)`;
 
             // Compare expire value (unix timestamp in seconds) to current date
             if (jwtObj.exp * 1000 > Date.now()) {
@@ -74,7 +74,7 @@ sessionHandler.prototype._getTokenFromStorage = function(callback) {
 
 /**
  * Internal - Saves a new token for this account to tokens.db
- * @param {String} token The refreshToken to store
+ * @param {string} token The refreshToken to store
  */
 sessionHandler.prototype._saveTokenToStorage = function(token) {
     logger("debug", `_saveTokenToStorage(): Updating tokens.db entry for accountName '${this.logOnOptions.accountName}'...`);

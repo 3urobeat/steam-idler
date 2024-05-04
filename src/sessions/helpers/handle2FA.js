@@ -64,8 +64,8 @@ sessionHandler.prototype._handle2FA = function(res) {
 // Helper function to get 2FA code from user and passing it to accept function or skipping account if desired
 sessionHandler.prototype._get2FAUserInput = function() {
 
-    let question = `[${this.logOnOptions.accountName}] Steam Guard Code (leave empty and press ENTER to skip account): `;
-    let timeout = 90000;
+    const question = `[${this.logOnOptions.accountName}] Steam Guard Code (leave empty and press ENTER to skip account): `;
+    const timeout = 90000;
 
     // Ask user for code
     logger.readInput(question, timeout, (text) => {
