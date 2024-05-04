@@ -114,7 +114,7 @@ function importProxies() {
 
 
 /* ------------ Login all accounts ------------ */
-let allBots = [];
+const allBots = [];
 
 module.exports.start = async () => {
     global.logger = logger; // Make logger accessible from everywhere in this project
@@ -123,10 +123,10 @@ module.exports.start = async () => {
     logger("info", "steam-idler by 3urobeat v1.9\n");
 
     // Call helper function to import logininfo
-    let logininfo = await importLogininfo();
+    const logininfo = await importLogininfo();
 
     // Call helper function to import proxies
-    let proxies = await importProxies();
+    const proxies = await importProxies();
 
     // Start creating a bot object for each account
     logger("", "", true);
@@ -134,13 +134,13 @@ module.exports.start = async () => {
     Object.values(logininfo).forEach((e, i) => {
         setTimeout(() => {
 
-            let readycheckinterval = setInterval(() => {
+            const readycheckinterval = setInterval(() => {
                 if (this.nextacc == i) { // Check if it is our turn
                     clearInterval(readycheckinterval);
 
                     // Create new bot object
-                    let botfile = require("./bot.js");
-                    let bot = new botfile(e, i, proxies);
+                    const botfile = require("./bot.js");
+                    const bot = new botfile(e, i, proxies);
 
                     bot.login();
 

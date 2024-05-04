@@ -29,8 +29,9 @@ const config         = require("../config.json");
 
 /**
  * Constructor Creates a new bot object and logs in the account
- * @param {Object} logOnOptions The logOnOptions obj for this account
- * @param {Number} loginindex The loginindex for this account
+ * @param {object} logOnOptions The logOnOptions obj for this account
+ * @param {number} loginindex The loginindex for this account
+ * @param proxies
  */
 const Bot = function(logOnOptions, loginindex, proxies) {
 
@@ -70,7 +71,7 @@ Bot.prototype.login = async function() {
     // Get new session for this account and log in
     this.session = new sessionHandler(this.client, this.logOnOptions.accountName, this.loginindex, this.logOnOptions);
 
-    let refreshToken = await this.session.getToken();
+    const refreshToken = await this.session.getToken();
     if (!refreshToken) return; // Stop execution if getToken aborted login attempt
 
     setTimeout(() => this.client.logOn({ "refreshToken": refreshToken }), config.loginDelay); // Log in with logOnOptions
@@ -107,14 +108,14 @@ Bot.prototype.attachEventListeners = function() {
 
 
         // Shorthander to start playing
-        let startPlaying = () => {
+        const startPlaying = () => {
             this.client.gamesPlayed(configGames);
             this.startedPlayingTimestamp = Date.now();
             this.playedAppIDs = configGames;
         };
 
         // Get all licenses this account owns
-        let options = {
+        const options = {
             includePlayedFreeGames: true,
             filterAppids: configGames.filter(e => !isNaN(e)), // We only need to check for these appIDs. Filter custom game string
             includeFreeSub: false
@@ -164,10 +165,10 @@ Bot.prototype.attachEventListeners = function() {
 
 
     this.client.chat.on("friendMessage", (msg) => {
-        let message = msg.message_no_bbcode;
-        let steamID = msg.steamid_friend;
-        let steamID64 = new SteamID(String(steamID)).getSteamID64();
-        let username = this.client.users[steamID64].player_name;
+        const message = msg.message_no_bbcode;
+        const steamID = msg.steamid_friend;
+        const steamID64 = new SteamID(String(steamID)).getSteamID64();
+        const username = this.client.users[steamID64].player_name;
 
         logger("info", `[${this.logOnOptions.accountName}] Friend message from '${username}' (${steamID64}): ${message}`);
 
@@ -244,7 +245,7 @@ Bot.prototype.handleRelog = function() {
 
     // Check if it's our turn to relog every 1 sec after waiting relogDelay ms
     setTimeout(() => {
-        let relogInterval = setInterval(() => {
+        const relogInterval = setInterval(() => {
             if (controller.relogQueue.indexOf(this.loginindex) != 0) return; // Not our turn? stop and retry in the next iteration
 
             clearInterval(relogInterval); // Prevent any retries
@@ -261,7 +262,7 @@ Bot.prototype.handleRelog = function() {
                     this.logOnOptions.steamGuardCode = SteamTotp.generateAuthCode(this.logOnOptions.sharedSecret);
                 }
 
-                let refreshToken = await this.session.getToken();
+                const refreshToken = await this.session.getToken();
                 if (!refreshToken) return; // Stop execution if getToken aborted login attempt
 
                 this.client.logOn({ "refreshToken": refreshToken });
@@ -278,10 +279,10 @@ Bot.prototype.logPlaytimeToFile = function() {
         logger("debug", `Logging playtime for '${this.logOnOptions.accountName}' to playtime.txt...`);
 
         // Helper function to convert timestamp into iso date string
-        let formatDate = (timestamp) => (new Date(timestamp - (new Date().getTimezoneOffset() * 60000))).toISOString().replace(/T/, " ").replace(/\..+/, "");
+        const formatDate = (timestamp) => (new Date(timestamp - (new Date().getTimezoneOffset() * 60000))).toISOString().replace(/T/, " ").replace(/\..+/, "");
 
         // Append session summary to playtime.txt
-        let str = `[${this.logOnOptions.accountName}] Session Summary (${formatDate(this.startedPlayingTimestamp)} - ${formatDate(Date.now())}) ~ Played for ${Math.trunc((Date.now() - this.startedPlayingTimestamp) / 1000)} seconds: ${util.inspect(this.playedAppIDs, false, 2, false)}`; // Inspect() formats array properly
+        const str = `[${this.logOnOptions.accountName}] Session Summary (${formatDate(this.startedPlayingTimestamp)} - ${formatDate(Date.now())}) ~ Played for ${Math.trunc((Date.now() - this.startedPlayingTimestamp) / 1000)} seconds: ${util.inspect(this.playedAppIDs, false, 2, false)}`; // Inspect() formats array properly
 
         fs.appendFileSync("./playtime.txt", str + "\n");
     }

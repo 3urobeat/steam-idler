@@ -18,7 +18,7 @@
 // This sessionHandler module is a modified version from my Steam Comment Service Bot: https://github.com/3urobeat/steam-comment-service-bot
 
 const SteamUser    = require("steam-user"); // eslint-disable-line
-const SteamSession = require("steam-session"); // eslint-disable-line
+const SteamSession = require("steam-session");
 const nedb         = require("@seald-io/nedb");
 const { StartSessionResponse } = require("steam-session/dist/interfaces-external.js"); // eslint-disable-line
 
@@ -28,9 +28,9 @@ const controller   = require("../controller.js");
 /**
  * Constructor - Object oriented approach for handling session for one account
  * @param {SteamUser} bot The bot instance of the calling account
- * @param {String} thisbot The thisbot string of the calling account
- * @param {Number} loginindex The loginindex of the calling account
- * @param {Object} logOnOptions Object containing username, password and optionally steamGuardCode
+ * @param {string} thisbot The thisbot string of the calling account
+ * @param {number} loginindex The loginindex of the calling account
+ * @param {object} logOnOptions Object containing username, password and optionally steamGuardCode
  */
 const sessionHandler = function(bot, thisbot, loginindex, logOnOptions) {
 
@@ -85,7 +85,7 @@ sessionHandler.prototype.getToken = function() { // I'm not allowed to use arrow
 
 /**
  * Internal - Handles resolving the getToken() promise and skipping the account if necessary
- * @param {String} token The token to resolve with or null when account should be skipped
+ * @param {string} token The token to resolve with or null when account should be skipped
  */
 sessionHandler.prototype._resolvePromise = function(token) {
 
