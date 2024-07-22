@@ -9,12 +9,12 @@
         "qrcode": "^1.5.3",
         "steam-session": "^1.7.2",
         "steam-totp": "^2.1.2",
-        "steam-user": "^5.0.9"
+        "steam-user": "^5.0.10"
     },
     "devDependencies": {
-        "@eslint/js": "^9.2.0",
-        "eslint": "^9.2.0",
-        "eslint-plugin-jsdoc": "^48.2.3"
+        "@eslint/js": "^9.7.0",
+        "eslint": "^9.7.0",
+        "eslint-plugin-jsdoc": "^48.8.3"
     },
     "scripts": {
         "start": "node idler.js"
