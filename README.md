@@ -13,7 +13,7 @@
 
 &nbsp;
 
-## Introduction
+## ✨ Introduction
 This is a simple cross-platform Steam game idling bot, supporting multiple accounts.  
 It handles the connection management for all accounts for you, sends afk messages if enabled and of course idles the configured games.
 
@@ -25,7 +25,7 @@ Please continue reading to learn how to set this bot up.
 
 &nbsp;
 
-## Install
+## 🚀 Install
 Make sure to have [node.js](https://nodejs.org/) installed.  
 Download this repository as `.zip`, extract the folder and open a Terminal/Power Shell/Console in the folder.  
 
@@ -33,7 +33,7 @@ Type `npm install` to install all dependencies.
 
 &nbsp;
 
-## Accounts
+## 👤 Accounts
 Open the `accounts.txt` file and put an account in each line in this format:  
 `username:password:shared_secret`
 
@@ -54,7 +54,7 @@ It is only used to store a token in the database to re-use the existing session 
 
 &nbsp;
 
-## Proxies
+## 📡 Proxies
 If you are using many accounts it might make sense to add proxies so you don't have tons of sessions from the same IP.  
 To do this, open the `proxies.txt` file and put as many HTTP proxies as you wish, line per line.  
 The bot will spread all accounts equally on all available proxies, including your local IP.  
@@ -63,7 +63,7 @@ Please note that Steam might block some proxy providers.
 
 &nbsp;
   
-## Config
+## 📝 Config
 Open the `config.json` in a text editor and put the games you wan't to idle inside the `playingGames` brackets.  
 
 You can set a custom game by passing a String as the first argument.  
@@ -102,11 +102,17 @@ Take a look at the default `config.json` if you are unsure what you are missing.
 
 &nbsp;
 
-## Start
+## 🚀 Start
 Then just type `node idler.js` to start the script.  
 The script will try to log in and ask you for your Steam Guard code if it needs one. When it is logged in a logged in message will be displayed.  
 
 Every time an account loses connection it will print a session summary to a text file "playtime.txt" (will be created automatically).  
 This also applies to when you stop the bot manually. To turn this whole feature off, set `logPlaytimeToFile` in the config to `false`.
 
+&nbsp;
+
 Thats it. A simple cross-platform Steam game idling script powered by [DoctorMcKay's steam-user library](https://github.com/DoctorMcKay/node-steam-user).
+
+&nbsp;
+
+[![Stargazers over time](https://starchart.cc/3urobeat/steam-idler.svg?variant=adaptive)](https://starchart.cc/3urobeat/steam-idler)
