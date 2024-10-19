@@ -6,15 +6,15 @@
     "dependencies": {
         "@seald-io/nedb": "^4.0.4",
         "output-logger": "^2.3.7",
-        "qrcode": "^1.5.3",
-        "steam-session": "^1.7.2",
+        "qrcode": "^1.5.4",
+        "steam-session": "^1.9.0",
         "steam-totp": "^2.1.2",
-        "steam-user": "^5.0.10"
+        "steam-user": "^5.2.0"
     },
     "devDependencies": {
-        "@eslint/js": "^9.7.0",
-        "eslint": "^9.7.0",
-        "eslint-plugin-jsdoc": "^48.8.3"
+        "@eslint/js": "^9.13.0",
+        "eslint": "^9.13.0",
+        "eslint-plugin-jsdoc": "^50.4.3"
     },
     "scripts": {
         "start": "node idler.js"
