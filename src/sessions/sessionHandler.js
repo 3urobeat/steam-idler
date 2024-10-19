@@ -4,10 +4,10 @@
  * Created Date: 2022-10-09 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-31 12:14:43
+ * Last Modified: 2024-10-19 14:18:43
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -115,6 +115,20 @@ sessionHandler.prototype._attemptCredentialsLogin = function() {
 
     // Attach event listeners
     this._attachEvents();
+
+    // Bail if username or password is null
+    if (!this.logOnOptions.accountName || !this.logOnOptions.password) {
+        logger("", "", true);
+
+        if (this.logOnOptions.accountName) {
+            logger("error", `[${this.thisbot}] The account '${this.logOnOptions.accountName}' is missing a password, which is required to login using credentials! Please re-check this 'accounts.txt' entry.`, true);
+        } else {
+            logger("error", `[${this.thisbot}] This account is missing a username or password, which are required to login using credentials! Please re-check your 'accounts.txt' entries.`, true);
+        }
+
+        this._resolvePromise(null);
+        return;
+    }
 
     // Login with QR Code if password is "qrcode", otherwise with normal credentials
     if (this.logOnOptions.password == "qrcode") {
