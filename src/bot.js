@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 2024-01-04 10:47:06
+ * Last Modified: 2024-10-19 12:20:34
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
@@ -168,7 +168,7 @@ Bot.prototype.attachEventListeners = function() {
         const message = msg.message_no_bbcode;
         const steamID = msg.steamid_friend;
         const steamID64 = new SteamID(String(steamID)).getSteamID64();
-        const username = this.client.users[steamID64].player_name;
+        const username  = this.user.users[steamID64] ? this.user.users[steamID64].player_name : ""; // Set username to nothing in case they are not cached yet to avoid errors
 
         logger("info", `[${this.logOnOptions.accountName}] Friend message from '${username}' (${steamID64}): ${message}`);
 
