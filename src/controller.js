@@ -4,10 +4,10 @@
  * Created Date: 2022-10-17 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 2023-12-31 12:24:21
+ * Last Modified: 2024-10-19 13:54:55
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2023 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -17,6 +17,7 @@
 
 // Handles creating bot objects, providing them with data and relogging
 const fs     = require("fs");
+const https  = require("https");
 const logger = require("output-logger");
 
 const config = require("../config.json");
@@ -112,6 +113,46 @@ function importProxies() {
     });
 }
 
+/**
+ * Checks if an update is available from the GitHub repository and logs a message
+ */
+function checkForUpdate() {
+    logger("info", "Checking for an available update...", false, true, logger.animation("loading"));
+
+    let output = "";
+
+    try {
+        const localVersion = require("../package.json").version;
+
+        const req = https.get("https://raw.githubusercontent.com/3urobeat/steam-idler/main/package.json", function(res) {
+            res.setEncoding("utf8");
+
+            res.on("data", (chunk) => {
+                output += chunk;
+            });
+
+            res.on("end", () => {
+                output = JSON.parse(output);
+                const onlineVersion = output.version;
+
+                if (onlineVersion && onlineVersion != localVersion) {
+                    logger("", "", true);
+                    logger("", `${logger.colors.fggreen}Update available!${logger.colors.reset} Your version: ${logger.colors.fgred}${localVersion}${logger.colors.reset} | New version: ${logger.colors.fggreen}${onlineVersion}`, true);
+                    logger("", "", true);
+                    logger("", `Download it here and transfer your accounts.txt, config.json & proxies.txt:\n${logger.colors.fgcyan}${logger.colors.underscore}https://github.com/3urobeat/steam-idler/archive/refs/heads/main.zip`, true);
+                    logger("", "", true);
+                }
+            });
+        });
+
+        req.on("error", function(err) {
+            logger("warn", `${logger.colors.reset}[${logger.colors.fgred}Notice${logger.colors.reset}]: Couldn't check for an available update because either GitHub is down or your internet isn't working.\n          Error: ${err}`, true);
+        });
+    } catch (err) {
+        logger("error", "Failed to check for an update: " + err, true);
+    }
+}
+
 
 /* ------------ Login all accounts ------------ */
 const allBots = [];
@@ -121,6 +162,9 @@ module.exports.start = async () => {
 
     logger("", "", true, true);
     logger("info", "steam-idler by 3urobeat v1.9\n");
+
+    // Check for an update
+    checkForUpdate();
 
     // Call helper function to import logininfo
     const logininfo = await importLogininfo();
