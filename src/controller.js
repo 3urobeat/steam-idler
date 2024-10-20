@@ -4,7 +4,7 @@
  * Created Date: 2022-10-17 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 2024-10-19 13:54:55
+ * Last Modified: 2024-10-20 18:48:21
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
@@ -136,7 +136,6 @@ function checkForUpdate() {
                 const onlineVersion = output.version;
 
                 if (onlineVersion && onlineVersion != localVersion) {
-                    logger("", "", true);
                     logger("", `${logger.colors.fggreen}Update available!${logger.colors.reset} Your version: ${logger.colors.fgred}${localVersion}${logger.colors.reset} | New version: ${logger.colors.fggreen}${onlineVersion}`, true);
                     logger("", "", true);
                     logger("", `Download it here and transfer your accounts.txt, config.json & proxies.txt:\n${logger.colors.fgcyan}${logger.colors.underscore}https://github.com/3urobeat/steam-idler/archive/refs/heads/main.zip`, true);
@@ -161,7 +160,7 @@ module.exports.start = async () => {
     global.logger = logger; // Make logger accessible from everywhere in this project
 
     logger("", "", true, true);
-    logger("info", "steam-idler by 3urobeat v1.9\n");
+    logger("info", "steam-idler by 3urobeat v1.10\n");
 
     // Check for an update
     checkForUpdate();
