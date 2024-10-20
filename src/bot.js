@@ -1,10 +1,10 @@
 /*
- * File: this.client.js
+ * File: bot.js
  * Project: steam-idler
  * Created Date: 2022-10-17 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 2024-10-19 12:20:34
+ * Last Modified: 2024-10-20 18:39:11
  * Modified By: 3urobeat
  *
  * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
@@ -216,9 +216,14 @@ Bot.prototype.attachEventListeners = function() {
 
         } else { // Connection loss
 
-            if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this event if account is already waiting for relog
+            // If error occurred during relog (aka logOn gave up because connection is still down), move account to the back of the queue and call handleRelog again
+            if (controller.relogQueue.includes(this.loginindex)) {
+                logger("warn", `[${this.logOnOptions.accountName}] Failed to relog. Repositioning to the back of the queue and trying again. ${err}`);
+                controller.relogQueue.splice(0, 1);
+            } else {
+                logger("info", `[${this.logOnOptions.accountName}] Lost connection to Steam. ${err}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
+            }
 
-            logger("info", `[${this.logOnOptions.accountName}] Lost connection to Steam. ${err}. Trying to relog in ${config.relogDelay / 1000} seconds...`);
             this.handleRelog();
         }
     });
@@ -233,7 +238,9 @@ Bot.prototype.attachEventListeners = function() {
 };
 
 
-// Handles relogging this bot account
+/**
+ * Handles relogging this bot account
+ */
 Bot.prototype.handleRelog = function() {
     if (controller.relogQueue.includes(this.loginindex)) return; // Don't handle this request if account is already waiting for relog
 
@@ -255,8 +262,6 @@ Bot.prototype.handleRelog = function() {
 
             // Attach relogdelay timeout
             setTimeout(async () => {
-                logger("info", `[${this.logOnOptions.accountName}] Logging in...`);
-
                 // Generate steamGuardCode with shared secret if one was provided
                 if (this.logOnOptions.sharedSecret) {
                     this.logOnOptions.steamGuardCode = SteamTotp.generateAuthCode(this.logOnOptions.sharedSecret);
@@ -264,6 +269,8 @@ Bot.prototype.handleRelog = function() {
 
                 const refreshToken = await this.session.getToken();
                 if (!refreshToken) return; // Stop execution if getToken aborted login attempt
+
+                logger("info", `[${this.logOnOptions.accountName}] Logging in...`);
 
                 this.client.logOn({ "refreshToken": refreshToken });
             }, config.loginDelay);
