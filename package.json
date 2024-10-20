@@ -1,6 +1,6 @@
 {
     "name": "steam-idler",
-    "version": "1.9",
+    "version": "1.10",
     "description": "Headless cross-platform Steam game idler with multi account support! ",
     "main": "idler.js",
     "dependencies": {
