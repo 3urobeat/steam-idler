@@ -21,7 +21,7 @@
     },
       },
   "overrides": {
-    "axios": "1.7.4"
+    "axios": "^1.7.4"
   },
     "author": "3urobeat",
     "license": "GPL-3.0",
