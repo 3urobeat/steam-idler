@@ -19,6 +19,10 @@
     "scripts": {
         "start": "node idler.js"
     },
+      },
+  "overrides": {
+    "axios": "^1.7.4"
+  },
     "author": "3urobeat",
     "license": "GPL-3.0",
     "homepage": "https://github.com/3urobeat",
