@@ -4,10 +4,10 @@
  * Created Date: 2022-10-17 18:00:31
  * Author: 3urobeat
  *
- * Last Modified: 2024-10-20 18:48:21
+ * Last Modified: 2026-01-14 21:47:28
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2026 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -160,7 +160,7 @@ module.exports.start = async () => {
     global.logger = logger; // Make logger accessible from everywhere in this project
 
     logger("", "", true, true);
-    logger("info", "steam-idler by 3urobeat v1.10\n");
+    logger("info", "steam-idler by 3urobeat v1.11\n");
 
     // Check for an update
     checkForUpdate();
