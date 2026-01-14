@@ -4,10 +4,10 @@
  * Created Date: 2022-10-10 12:53:20
  * Author: 3urobeat
  *
- * Last Modified: 2024-10-19 14:25:03
+ * Last Modified: 2026-01-14 21:30:14
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2026 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -58,14 +58,14 @@ sessionHandler.prototype._getTokenFromStorage = function(callback) {
 
             // Compare expire value (unix timestamp in seconds) to current date
             if (jwtObj.exp * 1000 > Date.now()) {
-                logger("info", `[${this.thisbot}] Found valid token until '${validUntilStr}' in tokens.db! Logging in with it to reuse session...`, false, true);
+                logger("info", `[${this.logOnOptions.accountName}] Found valid token until '${validUntilStr}' in tokens.db! Logging in with it to reuse session...`, false, true);
                 callback(doc.token);
             } else {
-                logger("info", `[${this.thisbot}] Found invalid token in tokens.db. It was valid till '${validUntilStr}'. Logging in with credentials to get a new session...`, false, true);
+                logger("info", `[${this.logOnOptions.accountName}] Found invalid token in tokens.db. It was valid till '${validUntilStr}'. Logging in with credentials to get a new session...`, false, true);
                 callback(null);
             }
         } else {
-            logger("info", `[${this.thisbot}] No token found in tokens.db. Logging in with credentials to get a new session...`, false, true);
+            logger("info", `[${this.logOnOptions.accountName}] No token found in tokens.db. Logging in with credentials to get a new session...`, false, true);
             callback(null);
         }
     });
@@ -88,7 +88,7 @@ sessionHandler.prototype._saveTokenToStorage = function(token) {
  * Remove the token of this account from tokens.db. Intended to be called from the steam-user login error event when an invalid token was used so the next login attempt will create a new one.
  */
 sessionHandler.prototype.invalidateTokenInStorage = function() {
-    logger("debug", `[${this.thisbot}] invalidateTokenInStorage(): Removing refreshToken for accountName '${this.logOnOptions.accountName}' from tokens.db...`);
+    logger("debug", `[${this.logOnOptions.accountName}] invalidateTokenInStorage(): Removing refreshToken for accountName '${this.logOnOptions.accountName}' from tokens.db...`);
 
     this.tokensdb.removeAsync({ accountName: this.logOnOptions.accountName }, { multi: true });
 };

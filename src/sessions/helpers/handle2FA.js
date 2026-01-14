@@ -4,10 +4,10 @@
  * Created Date: 2022-10-09 12:59:31
  * Author: 3urobeat
  *
- * Last Modified: 2024-10-19 14:26:02
+ * Last Modified: 2026-01-14 21:30:14
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2026 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -27,7 +27,7 @@ const sessionHandler = require("../sessionHandler.js");
  * @param {StartSessionResponse} res Response object from startWithCredentials() promise
  */
 sessionHandler.prototype._handle2FA = function(res) {
-    logger("debug", `[${this.thisbot}] _handle2FA(): Received startWithCredentials() actionRequired response. Type: ${res.validActions[0].type} | Detail: ${res.validActions[0].detail}`);
+    logger("debug", `[${this.logOnOptions.accountName}] _handle2FA(): Received startWithCredentials() actionRequired response. Type: ${res.validActions[0].type} | Detail: ${res.validActions[0].detail}`);
 
     // Get 2FA code/prompt confirmation from user, mentioning the correct source
     switch (res.validActions[0].type) {
@@ -71,7 +71,7 @@ sessionHandler.prototype._get2FAUserInput = function() {
         if (!text || text == "") { // No response or manual skip
             if (text == null) logger("info", "Skipping account because you didn't respond in 1.5 minutes...", true); // No need to check for main acc as timeout is disabled for it
 
-            logger("info", `[${this.thisbot}] steamGuard input empty, skipping account...`, false, true);
+            logger("info", `[${this.logOnOptions.accountName}] steamGuard input empty, skipping account...`, false, true);
 
             this._resolvePromise(null);
 
@@ -79,7 +79,7 @@ sessionHandler.prototype._get2FAUserInput = function() {
 
             if (text == "Login request accepted") return; // We must not call submitSteamGuard() when authenticated event calls stopReadInput("Login request accepted")
 
-            logger("info", `[${this.thisbot}] Accepting Steam Guard Code...`, false, true);
+            logger("info", `[${this.logOnOptions.accountName}] Accepting Steam Guard Code...`, false, true);
             this._acceptSteamGuardCode(text.toString().trim()); // Pass code to accept function
         }
     });
@@ -94,14 +94,14 @@ sessionHandler.prototype._acceptSteamGuardCode = function(code) {
 
     this.session.submitSteamGuardCode(code)
         .then(() => { // Success
-            logger("debug", `[${this.thisbot}] acceptSteamGuardCode(): User supplied correct code, authenticated event should trigger.`);
+            logger("debug", `[${this.logOnOptions.accountName}] acceptSteamGuardCode(): User supplied correct code, authenticated event should trigger.`);
         })
         .catch((err) => { // Invalid code, ask again
             logger("warn", `Your code seems to be wrong, please try again or skip this account! ${err}`);
 
             // Skip account if account got temp blocked
             if (err.eresult == SteamSession.EResult.RateLimitExceeded || err.eresult == SteamSession.EResult.AccountLoginDeniedThrottle || err.eresult == SteamSession.EResult.AccessDenied) {
-                logger("error", `[${this.thisbot}] Steam rejected our login and applied a temporary login cooldown! ${err}`);
+                logger("error", `[${this.logOnOptions.accountName}] Steam rejected our login and applied a temporary login cooldown! ${err}`);
                 this.session.cancelLoginAttempt();
                 this._resolvePromise(null);
                 return;
@@ -123,7 +123,7 @@ sessionHandler.prototype._handleQRCode = function(res) {
     // Display QR Code using qrcode library
     qrcode.toString(res.qrChallengeUrl, (err, string) => {
         if (err) {
-            logger("error", `[${this.thisbot}] Failed to display QR Code! Is the URL '${res.qrChallengeUrl}' invalid? ${err}`);
+            logger("error", `[${this.logOnOptions.accountName}] Failed to display QR Code! Is the URL '${res.qrChallengeUrl}' invalid? ${err}`);
             return this._resolvePromise(null);
         }
 
