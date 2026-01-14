@@ -4,10 +4,10 @@
  * Created Date: 2022-10-17 17:32:28
  * Author: 3urobeat
  *
- * Last Modified: 2024-11-02 19:54:44
+ * Last Modified: 2026-01-14 21:30:19
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2026 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -69,7 +69,7 @@ Bot.prototype.login = async function() {
     }
 
     // Get new session for this account and log in
-    this.session = new sessionHandler(this.client, this.logOnOptions.accountName, this.loginindex, this.logOnOptions);
+    this.session = new sessionHandler(this);
 
     const refreshToken = await this.session.getToken();
     if (!refreshToken) return; // Stop execution if getToken aborted login attempt

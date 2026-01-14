@@ -4,10 +4,10 @@
  * Created Date: 2022-10-09 12:47:27
  * Author: 3urobeat
  *
- * Last Modified: 2024-10-19 14:18:43
+ * Last Modified: 2026-01-14 21:33:49
  * Modified By: 3urobeat
  *
- * Copyright (c) 2022 - 2024 3urobeat <https://github.com/3urobeat>
+ * Copyright (c) 2022 - 2026 3urobeat <https://github.com/3urobeat>
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -17,35 +17,31 @@
 
 // This sessionHandler module is a modified version from my Steam Comment Service Bot: https://github.com/3urobeat/steam-comment-service-bot
 
-const SteamUser    = require("steam-user"); // eslint-disable-line
 const SteamSession = require("steam-session");
 const nedb         = require("@seald-io/nedb");
-const { StartSessionResponse } = require("steam-session/dist/interfaces-external.js"); // eslint-disable-line
 
 const controller   = require("../controller.js");
+const Bot          = require("../bot.js"); // eslint-disable-line
+const { StartSessionResponse } = require("steam-session/dist/interfaces-external.js"); // eslint-disable-line
 
 
 /**
  * Constructor - Object oriented approach for handling session for one account
- * @param {SteamUser} bot The bot instance of the calling account
- * @param {string} thisbot The thisbot string of the calling account
- * @param {number} loginindex The loginindex of the calling account
- * @param {object} logOnOptions Object containing username, password and optionally steamGuardCode
+ * @class
+ * @param {Bot} bot The bot object of this account
  */
-const sessionHandler = function(bot, thisbot, loginindex, logOnOptions) {
+const sessionHandler = function(bot) {
 
     // Make parameters given to the constructor available
-    this.bot          = bot;
-    this.thisbot      = thisbot;
-    this.loginindex   = loginindex;
-    this.logOnOptions = logOnOptions;
+    this.bot = bot;
 
     // Define vars that will be populated
     this.getTokenPromise = null; // Can be called from a helper later on
-    this.session = null;
+    this.session         = null;
 
     // Load tokens database
-    this.tokensdb = new nedb({ filename: "./src/tokens.db", autoload: true });
+    this.tokensdb     = new nedb({ filename: "./src/tokens.db", autoload: true });
+    this.logOnOptions = bot.logOnOptions;
 
     // Load helper files
     require("./events/sessionEvents");
@@ -65,7 +61,7 @@ module.exports = sessionHandler;
  */
 sessionHandler.prototype.getToken = function() { // I'm not allowed to use arrow styled functions here... (https://stackoverflow.com/questions/59344601/javascript-nodejs-typeerror-cannot-set-property-validation-of-undefined)
     return new Promise((resolve) => {
-        logger("debug", `[${this.thisbot}] getToken(): Created new object for token request`);
+        logger("debug", `[${this.logOnOptions.accountName}] getToken(): Created new object for token request`);
 
         // Save promise resolve function so any other function of this object can resolve the promise itself
         this.getTokenPromise = resolve;
@@ -91,7 +87,7 @@ sessionHandler.prototype._resolvePromise = function(token) {
 
     // Skip this account if token is null or stop bot if this is the main account
     if (!token) {
-        logger("error", `[${this.thisbot}] Couldn't log in! Continuing with next account...`);
+        logger("error", `[${this.logOnOptions.accountName}] Couldn't log in! Continuing with next account...`);
         controller.nextacc++; // The next account can start
 
         this.session.cancelLoginAttempt(); // Cancel this login attempt just to be sure
@@ -121,9 +117,9 @@ sessionHandler.prototype._attemptCredentialsLogin = function() {
         logger("", "", true);
 
         if (this.logOnOptions.accountName) {
-            logger("error", `[${this.thisbot}] The account '${this.logOnOptions.accountName}' is missing a password, which is required to login using credentials! Please re-check this 'accounts.txt' entry.`, true);
+            logger("error", `[${this.logOnOptions.accountName}] The account '${this.logOnOptions.accountName}' is missing a password, which is required to login using credentials! Please re-check this 'accounts.txt' entry.`, true);
         } else {
-            logger("error", `[${this.thisbot}] This account is missing a username or password, which are required to login using credentials! Please re-check your 'accounts.txt' entries.`, true);
+            logger("error", `[${this.logOnOptions.accountName}] This account is missing a username or password, which are required to login using credentials! Please re-check your 'accounts.txt' entries.`, true);
         }
 
         this._resolvePromise(null);
